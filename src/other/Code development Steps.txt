@@ -8,24 +8,30 @@ Steps to create an End to End ML Project:
     - APIs
     - Public Datasets
 
-2. Exploratory Data Analysis
+2. Data Inscpection
     - Summary of dataset
-    - Visualization
-    - Finding Correlations
-    - Checking for multicolinearity
-    - Understanding about each and every features/columns/variables
+    - Checking for Null Values, Data Type of Features, 
 
-3. Data Cleaning & Feature Engineering
-    - Handling irrelevant columns
+3. Data Cleaning
     - Handling Missing Data
-    - Handling Outliers
     - Removing redundant and duplicate data
-    - Handling untidy dataset
+    - Handling untidy dataset etc
+ 
+4. Exploratory Data Analysis
+    - Finding Correlations
+    - Univariate Analysis
+    - Bivariate Analysis
+    - Multivariate Analysis
+    - Checking for multicolinearity
+    - Understanding about each and every features/columns/variables and putting our valuable observations
+
+5. Feature Engineering
     - Handling Categorical features
     - Feature Derivation
     - Selecting top/important features
 
-4. Model Selection & Training
+6. Model Selection & Training
+    - Scaling Data
     - Splitting Data
     - Selecting Modal
     - Training the Modal
@@ -33,9 +39,9 @@ Steps to create an End to End ML Project:
 
 ------------------------------------------------------------
 
-5. Creating REST API or UI
+7. Creating REST API or UI
 
-6. Pipelining & Deployment
+8. Pipelining & Deployment
 
 
 ** Please add if i have missed something
@@ -45,5 +51,8 @@ Steps to create an End to End ML Project:
 1. https://towardsdatascience.com/the-data-science-process-8-steps-to-a-successful-project-84891a18004
 2. https://towardsdatascience.com/what-is-data-cleaning-how-to-process-data-for-analytics-and-machine-learning-modeling-c2afcf4fbf45
 3. https://towardsdatascience.com/feature-engineering-for-machine-learning-3a5e293a5114
+
+
+--------------------------------------------------------------------------------------
 
 

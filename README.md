@@ -4,7 +4,7 @@
    - npm install -r requirements.txt
 
 ## To run the server
-   - flask run (inside the project root directory)
+   - flask run (from cmd inside the project root directory)
 
 ## Tu Run the notebook:
    - Open cmd in project directory

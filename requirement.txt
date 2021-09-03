@@ -5,3 +5,4 @@ seaborn
 matplotlib
 statsmodels==0.12.2
 scikit-learn
+flask-sqlalchemy==2.5.1

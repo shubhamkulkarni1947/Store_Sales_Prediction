@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect
 from models import db, SalesModel
 import json
 import logging
-
+import src.scripts.util_script as util_script
 
 app = Flask(__name__)
 
@@ -14,6 +14,7 @@ db.init_app(app)
 @app.before_first_request
 def create_table():
     db.create_all()
+    util_script.load_data()
 
 
 @app.route('/sales/create', methods=['GET', 'POST'])
@@ -23,10 +24,10 @@ def create():
     if request.method == 'POST':
         data=request.get_json(force=True, silent=False, cache=True)
         logging.info(f"post request came with data {data}")
-        sales = SalesModel(data['Item_Identifier'],data['Item_Weight'],data['Item_Fat_Content'],
-                              data['Item_Visibility'],data['Item_Type'],data['Item_MRP'],
-                              data['Outlet_Identifier'],data['Outlet_Establishment_Year'],data['Outlet_Size'],
-                              data['Outlet_Location_Type'],data['Outlet_Type'],data['Item_Outlet_Sales'])
+        sales = SalesModel(data['Item_Weight'],data['Item_Fat_Content'],
+                            data['Item_Visibility'],data['Item_Type'],data['Item_MRP'],
+                            data['Outlet_Establishment_Year'],data['Outlet_Size'],
+                            data['Outlet_Location_Type'],data['Outlet_Type'],data['Item_Outlet_Sales'])
         db.session.add(sales)
         db.session.commit()
 

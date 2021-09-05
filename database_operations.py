@@ -15,7 +15,7 @@ CLIENT_SECRET =os.getenv("CLIENT_SECRET")
 
 from models import SalesModelEncoder
 
-cloud_config = {'secure_connect_bundle': 'C:/Users/katre/Documents/GitHub/secure-connect-store-sales.zip'}
+cloud_config = {'secure_connect_bundle': 'secure-connect-store-sales.zip'}
 auth_provider = PlainTextAuthProvider(CLIENT_ID, CLIENT_SECRET)
 
 def get_session():

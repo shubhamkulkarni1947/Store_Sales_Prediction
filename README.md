@@ -1,7 +1,7 @@
 # Store_Sales_Prediction
 
 ## Install all packages from requirement.txt file before proceeding.
-   - npm install -r requirements.txt
+   -pip install -U -r requirements.txt
 
 ## To run the server
    - flask run (from cmd inside the project root directory)

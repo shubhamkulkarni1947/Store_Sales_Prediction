@@ -1,7 +1,0 @@
-notebook
-numpy
-pandas
-seaborn
-matplotlib
-statsmodels==0.12.2
-scikit-learn

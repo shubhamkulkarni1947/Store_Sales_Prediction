@@ -31,11 +31,10 @@ def complete_flow_till_model_creation():
 
 # ######################### load data source ##############################
 def get_train_df():
-    return pd.read_csv('/data/raw/Train.csv')
+    return pd.read_csv('../../../data/raw/Train.csv')
 
 def get_test_df():
-    return pd.read_csv('/data/raw/Test.csv')
-
+    return pd.read_csv('../../../data/raw/Test.csv')
 # ######################### clean data scource ##############################
 def clean_data(train_df,test_df):
 

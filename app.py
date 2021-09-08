@@ -1,11 +1,11 @@
 import json
 import logging
-
-from flask import Flask, request
+import os
+from flask import Flask, request, abort
 from werkzeug.utils import secure_filename
 
 #user defined modules import statements
-from src.scripts.dao.database_operations import insert_a_sale_data,get_all_data,create_table
+from src.scripts.dao.database_operations import create_table
 import  src.scripts.service.sales_service as sales_service
 
 
@@ -37,7 +37,7 @@ def add_training_data():
         logging.info(f"post request came with data {data}")
         #insert_a_sale_data(data)
         sales_service.upload_a_train_data_to_db(data)
-        return {"status":true,message:"Successfully store the data into database",data:[]}
+        return {"status":True,'message':"Successfully store the data into database",data:[]}
 
 @app.route('/user/train/all',methods=["GET"])
 def RetrieveList():
@@ -48,29 +48,29 @@ def RetrieveList():
 
 ####################################### api for train for newly added data  #####################
 
-@app.route("/user/train",methods=["POST"])
-def train():
-    if request.method == 'POST':
-
-        data=request.get_json(force=True, silent=False, cache=True)
-        #csv upload or single data upload for training data
-        if data['file_flag'] :
-            # make sure the file name in file type html form should be file
-            uploaded_file = request.files['file']
-            filename = secure_filename(uploaded_file.filename)
-            if filename != '':
-                file_ext = os.path.splitext(filename)[1]
-                if file_ext not in app.config['UPLOAD_EXTENSIONS']:
-                    abort(400)
-                uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
-                sales_service.load_train_csv_to_db(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
-                sales_service.train_model()
-                return {"status":true,message:"Success fully uploaded the data",data:[]}
-        else :
-            sales_service.upload_a_train_data_to_db(data)
-            #a single data can't effect a much so no need to train the model again
-            #sales_service.train()
-            return {"status":true,message:"Success fully uploaded the data",data:[]}
+# @app.route("/user/train",methods=["POST"])
+# def train():
+#     if request.method == 'POST':
+#
+#         data=request.get_json(force=True, silent=False, cache=True)
+#         #csv upload or single data upload for training data
+#         if data['file_flag'] :
+#             # make sure the file name in file type html form should be file
+#             uploaded_file = request.files['file']
+#             filename = secure_filename(uploaded_file.filename)
+#             if filename != '':
+#                 file_ext = os.path.splitext(filename)[1]
+#                 if file_ext not in app.config['UPLOAD_EXTENSIONS']:
+#                     abort(400)
+#                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
+#                 sales_service.load_train_csv_to_db(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
+#                 sales_service.train_model()
+#                 return {"status":True,"message":"Success fully uploaded the data",data:[]}
+#         else :
+#             sales_service.upload_a_train_data_to_db(data)
+#             #a single data can't effect a much so no need to train the model again
+#             #sales_service.train()
+#             return {"status":True,'message':"Success fully uploaded the data",data:[]}
 
 @app.route("/user/predict",methods=["POST"])
 def train():
@@ -88,11 +88,11 @@ def train():
                     abort(400)
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TEST'], filename))
                 result=sales_service.predict_sales_csv(os.path.join(app.config['UPLOAD_PATH_TEST'], filename))
-                return {"status":true,message:"Predicted sales are ",data:[result]}
+                return {"status":True,'message':"Predicted sales are ",data:[result]}
         else :
             result=sales_service.predict_sales(data)
 
-            return {"status":true,message:"Predicted sales is ",data:[result]}
+            return {"status":True,'message':"Predicted sales is ",data:[result]}
 
 if __name__=='__main__':
     app.run(debug=True,host='localhost', port=5000)

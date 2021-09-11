@@ -19,6 +19,7 @@ def predict_sales(data):
     #TODO : json data with sales data parameter
     #extract and drop feature
     #predict the sales and return
+
     pass
 
 # other supporting function

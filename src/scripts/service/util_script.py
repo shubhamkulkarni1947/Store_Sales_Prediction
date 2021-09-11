@@ -16,7 +16,20 @@ from sklearn.svm import SVR
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, classification_report, confusion_matrix
 import warnings
-
+import numpy as np
+import pandas as pd
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, LabelBinarizer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from catboost import CatBoostRegressor, CatBoostClassifier
+from xgboost import XGBRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor,RandomForestClassifier
+from sklearn.model_selection import train_test_split,cross_val_score,GridSearchCV,RandomizedSearchCV
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error,classification_report,confusion_matrix
+import warnings
+from joblib import dump,load
 
 # ########################## complete flow #########################################
 
@@ -27,7 +40,7 @@ def complete_flow_till_model_creation():
     resulted_dict=feature_encoding(resulted_dict['train_df'],resulted_dict['test_df'])
     resulted_dict=remove_irrelevant_columns(resulted_dict['train_df'],resulted_dict['test_df'])
     resulted_dict=predict_missing_values_Outlet_size(resulted_dict['train_df'],resulted_dict['test_df'])
-    training_model=train_model(resulted_dict['train_df'],resulted_dict['test_df'])
+    training_model=train_model(resulted_dict['train_df'])
 
 # ######################### load data source ##############################
 def get_train_df():
@@ -160,5 +173,42 @@ def predict_missing_values_Outlet_size(train_df,test_df):
     return {"train_df":train_df,"test_df":test_df}
 
 
-def train_model(train_df,test_df):
-    pass
+# Data Format (dictionary): {'ID':'Axsd34','Outlet_Size':'Medium',...}
+def createDataFrameUsingForm(data: dict) -> pd.DataFrame:
+    df = pd.DataFrame.from_dict(data,orient='index').T
+    return df
+
+def train_model(train_df):
+
+    X = train_df.drop(columns=['Item_Outlet_Sales'], axis=1)
+    y = train_df['Item_Outlet_Sales']
+
+    trainX, testX, trainY, testY = train_test_split(X, y, random_state=42, test_size=0.25)
+
+    clf = Pipeline(
+        [('cat_reg', CatBoostRegressor(random_state=2, iterations=3000, learning_rate=0.002, depth=6, silent=True))])
+    clf.fit(trainX, trainY)
+
+    print('Trining R2 Score: {}'.format(clf.score(trainX, trainY)))
+
+    pred = clf.predict(testX)
+    model_name = 'CatBoostRegressor'
+
+    predictionResult(testY, pred, model_name)
+    dump(clf,'../../../models/model.pkl')
+
+def predictionResult(testY,pred,model_name):
+
+    model_acc_scores = {}
+    print('------------------Test Result---------------')
+    print('--------------------{}------------------'.format(model_name))
+    score = r2_score(testY,pred)
+    mae = mean_absolute_error(testY,pred)
+    mse = mean_squared_error(testY,pred)
+    rmse = np.sqrt(mse)
+    scores_dict = {'R2 Score':score,'Mean Absolute Error':mae,'Mean Squared Error':mse,'Root Mean Squared Error':rmse}
+    model_acc_scores[model_name] = scores_dict
+    print('R Squared Score is: {}'.format(score))
+    print('Mean Absolute Error is: {}'.format(mae))
+    print('Mean Squared Error is: {}'.format(mse))
+    print('Root Mean Squared Error is: {}'.format(rmse))

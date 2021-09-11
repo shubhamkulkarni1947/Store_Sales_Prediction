@@ -185,8 +185,7 @@ def train_model(train_df):
 
     trainX, testX, trainY, testY = train_test_split(X, y, random_state=42, test_size=0.25)
 
-    clf = Pipeline(
-        [('cat_reg', CatBoostRegressor(random_state=2, iterations=3000, learning_rate=0.002, depth=6, silent=True))])
+    clf = Pipeline([('cat_reg', CatBoostRegressor(random_state=2, iterations=3000, learning_rate=0.002, depth=6, silent=True))])
     clf.fit(trainX, trainY)
 
     print('Trining R2 Score: {}'.format(clf.score(trainX, trainY)))
@@ -195,7 +194,7 @@ def train_model(train_df):
     model_name = 'CatBoostRegressor'
 
     predictionResult(testY, pred, model_name)
-    dump(clf,'../../../models/model.pkl')
+    dump(clf, '../../../models/model.pkl')
 
 def predictionResult(testY,pred,model_name):
 

@@ -75,8 +75,8 @@ def train():
 @app.route("/user/predict",methods=["POST"])
 def predict():
     if request.method == 'POST':
-
         data=request.get_json(force=True, silent=False, cache=True)
+        # print(data)
         #csv upload or single data upload for training data
         if data['file_flag'] :
             # make sure the file name in file type html form should be file

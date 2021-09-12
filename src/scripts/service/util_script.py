@@ -48,78 +48,54 @@ def get_train_df():
 
 def get_test_df():
     return pd.read_csv('../../../data/raw/Test.csv')
+
+
 # ######################### clean data scource ##############################
-def clean_data(train_df,test_df):
+def clean_data(df: pd.DataFrame):
 
 # ######################### handle_missing_value ############################
-    wt_miss_val = train_df['Item_Weight'].isna().sum()
-    print('Total missing value for Item_Weight is {} out of {}'.format(wt_miss_val, len(train_df['Item_Weight'])))
-
-    size_miss_val = train_df['Outlet_Size'].isna().sum()
-    print('Total missing value for Outlet_Size is {} out of {}'.format(size_miss_val, len(train_df['Outlet_Size'])))
 
     # imputing Missing Value for Item_Weight with Mean
-    train_df['Item_Weight'].fillna(train_df['Item_Weight'].mean(), inplace=True)
-    test_df['Item_Weight'].fillna(test_df['Item_Weight'].mean(), inplace=True)
+    df['Item_Weight'].fillna(df['Item_Weight'].mean(), inplace=True)
 
     #TODO applying tree based model to predict the value because null are larger in numbers
     # print(train_df['Outlet_Size'].value_counts())
 
-
-    per_missing_visib_train = len(train_df[train_df['Item_Visibility'] == 0]) / len(train_df) * 100
-    per_missing_visib_test = len(test_df[test_df['Item_Visibility'] == 0]) / len(test_df) * 100
-    print('Percent of missing values in Train->Item_Visibility are: {}%'.format(round(per_missing_visib_train, 2)))
-    print('Percent of missing values in Test->Item_Visibility are: {}%'.format(round(per_missing_visib_test, 2)))
-
-    # Imputing Item_Visibility missinng values with Median
-    train_df['Item_Visibility'].replace({0: train_df['Item_Visibility'].median()}, inplace=True)
-    test_df['Item_Visibility'].replace({0: test_df['Item_Visibility'].median()}, inplace=True)
+    df['Item_Visibility'].replace({0: df['Item_Visibility'].median()}, inplace=True)
 
 
 # ############################# Removing duplicates##############################################
 
-    train_df = get_train_df()
-    test_df = get_test_df()
+    df['Item_Fat_Content'].replace({'LF': 'Low Fat', 'low fat': 'Low Fat', 'reg': 'Regular'}, inplace=True)
 
-    train_df['Item_Fat_Content'].replace({'LF': 'Low Fat', 'low fat': 'Low Fat', 'reg': 'Regular'}, inplace=True)
-    test_df['Item_Fat_Content'].replace({'LF': 'Low Fat', 'low fat': 'Low Fat', 'reg': 'Regular'}, inplace=True)
+    return df
 
-    return {"train_df":train_df,"test_df":test_df}
+def feature_encoding(df: pd.DataFrame):
 
-def feature_encoding(train_df,test_df):
-
-    train_df['Item_Type'].replace(
-        {'Soft Drinks': 'Drinks', 'Hard Drinks': 'Drinks', 'Breads': 'Baking Goods', 'Seafood': 'Meat'}, inplace=True)
-    test_df['Item_Type'].replace(
+    df['Item_Type'].replace(
         {'Soft Drinks': 'Drinks', 'Hard Drinks': 'Drinks', 'Breads': 'Baking Goods', 'Seafood': 'Meat'}, inplace=True)
 
     # Binary Encoding
-    train_df['Item_Fat_Content'].replace({'Low Fat': 0, 'Regular': 1}, inplace=True)
-    test_df['Item_Fat_Content'].replace({'Low Fat': 0, 'Regular': 1}, inplace=True)
+    df['Item_Fat_Content'].replace({'Low Fat': 0, 'Regular': 1}, inplace=True)
 
     nominal_features = ['Outlet_Type', 'Item_Type', 'Outlet_Identifier']
     prefixes = ['out_type', 'item_type', 'out_id']
 
-    train_df = one_hot(train_df, nominal_features, prefixes)
-    test_df = one_hot(test_df, nominal_features, prefixes)
+    df = one_hot(df, nominal_features, prefixes)
 
     # Encoding Ordinal columns
     outlet_size_ord = {'Small': 0, 'Medium': 1, 'High': 2}
     out_loc_ord = {'Tier 1': 2, 'Tier 2': 1, 'Tier 3': 0}
 
-    train_df = ord_enc(train_df, 'Outlet_Size', outlet_size_ord)
-    test_df = ord_enc(test_df, 'Outlet_Size', outlet_size_ord)
+    df = ord_enc(df, 'Outlet_Size', outlet_size_ord)
 
-    train_df = ord_enc(train_df, 'Outlet_Location_Type', out_loc_ord)
-    test_df = ord_enc(test_df, 'Outlet_Location_Type', out_loc_ord)
+    df = ord_enc(df, 'Outlet_Location_Type', out_loc_ord)
 
     # # Deriving new column called Years_Since_Established from Establishment Year
-    train_df['Years_Since_Established'] = train_df['Outlet_Establishment_Year'].apply(lambda x: 2021 - x)
-    test_df['Years_Since_Established'] = test_df['Outlet_Establishment_Year'].apply(lambda x: 2021 - x)
+    df['Years_Since_Established'] = df['Outlet_Establishment_Year'].apply(lambda x: 2021 - x)
 
 
-
-    return {"train_df":train_df,"test_df":test_df}
+    return df
 
 #One_hot encoding nominal variables
 
@@ -138,45 +114,44 @@ def ord_enc(df,col,ord_var):
     df[col].replace(ord_var,inplace=True)
     return df
 
-def remove_irrelevant_columns(train_df,test_df):
-    train_df.drop(columns=['Item_Identifier'], axis=1, inplace=True)  # ,'Outlet_Identifier'
-    test_df.drop(columns=['Item_Identifier'], axis=1, inplace=True)
-    return {"train_df":train_df,"test_df":test_df}
+def remove_irrelevant_columns(df: pd.DataFrame):
+    df.drop(columns=['Item_Identifier'], axis=1, inplace=True)  # ,'Outlet_Identifier'
+    return df
 
 
-def predict_missing_values_Outlet_size(train_df,test_df):
-    out_train_pred_df = train_df[train_df['Outlet_Size'].isna()]
-    out_test_pred_df = test_df[test_df['Outlet_Size'].isna()]
-    out_train_df = train_df[~train_df['Outlet_Size'].isna()]  # for training
+def predict_missing_values_Outlet_size(df: pd.DataFrame):
+    out_train_pred_df = df[df['Outlet_Size'].isna()]
+    # out_test_pred_df = test_df[test_df['Outlet_Size'].isna()]
+    out_train_df = df[~df['Outlet_Size'].isna()]  # for training
     out_train_df.isna().sum()
     # out_train_df['Outlet_Size'] = out_train_df['Outlet_Size'].replace({'Small':0,'Medium':1,'High':2})
     # out_train_df.drop(columns=['Item_Identifier','Outlet_Identifier'],inplace=True)
     X = out_train_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales'])
     y = out_train_df['Outlet_Size']
     trainX, testX, trainY, testY = train_test_split(X, y, random_state=22, test_size=0.2)
-    cat_model = RandomForestClassifier(random_state=2)
-    cat_model.fit(trainX, trainY)
+    rf_model = RandomForestClassifier(random_state=2)
+    rf_model.fit(trainX, trainY)
 
-    pred = cat_model.predict(testX)
+    # pred = cat_model.predict(testX)
 
-    out_train_pred = cat_model.predict(out_train_pred_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales']))
+    out_train_pred = rf_model.predict(out_train_pred_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales']))
 
     out_train_pred_df['Outlet_Size'] = out_train_pred
-    out_test_pred = cat_model.predict(out_test_pred_df.drop(columns=['Outlet_Size']))
-    out_test_pred_df['Outlet_Size'] = out_test_pred
+    # out_test_pred = rf_model.predict(out_test_pred_df.drop(columns=['Outlet_Size']))
+    # out_test_pred_df['Outlet_Size'] = out_test_pred
 
-    train_df.dropna(inplace=True)
-    test_df.dropna(inplace=True)
+    df.dropna(inplace=True)
+    # test_df.dropna(inplace=True)
 
-    train_df = pd.concat([train_df, out_train_pred_df])
-    test_df = pd.concat([test_df, out_test_pred_df])
-    return {"train_df":train_df,"test_df":test_df}
+    df = pd.concat([df, out_train_pred_df])
+    # test_df = pd.concat([test_df, out_test_pred_df])
+    return df
 
 
 # Data Format (dictionary): {'ID':'Axsd34','Outlet_Size':'Medium',...}
-def createDataFrameUsingForm(data: dict) -> pd.DataFrame:
-    df = pd.DataFrame.from_dict(data,orient='index').T
-    return df
+# def createDataFrameUsingForm(data: dict) -> pd.DataFrame:
+#     df = pd.DataFrame.from_dict(data,orient='index').T
+#     return df
 
 def train_model(train_df):
 

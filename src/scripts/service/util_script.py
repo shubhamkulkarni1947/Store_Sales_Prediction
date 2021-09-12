@@ -30,21 +30,24 @@ from sklearn.model_selection import train_test_split,cross_val_score,GridSearchC
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error,classification_report,confusion_matrix
 import warnings
 from joblib import dump,load
+import src.scripts.dao.database_operations as dao
 
 # ########################## complete flow #########################################
 
 def complete_flow_till_model_creation():
     train_df=get_train_df()
-    test_df=get_test_df()
-    resulted_dict=clean_data(train_df,test_df)
-    resulted_dict=feature_encoding(resulted_dict['train_df'],resulted_dict['test_df'])
-    resulted_dict=remove_irrelevant_columns(resulted_dict['train_df'],resulted_dict['test_df'])
-    resulted_dict=predict_missing_values_Outlet_size(resulted_dict['train_df'],resulted_dict['test_df'])
-    training_model=train_model(resulted_dict['train_df'])
+    train_df=clean_data(train_df)
+    train_df=feature_encoding(train_df)
+    train_df=remove_irrelevant_columns(train_df)
+    train_df=predict_missing_values_Outlet_size(train_df)
+    training_model=train_model(train_df)
 
 # ######################### load data source ##############################
 def get_train_df():
-    return pd.read_csv('../../../data/raw/Train.csv')
+#    return pd.read_csv('../../../data/raw/Train.csv')
+    train_data= dao.get_train_data()
+    sales = [json.loads(x) for x in train_data]
+    return pd.DataFrame(sales)
 
 def get_test_df():
     return pd.read_csv('../../../data/raw/Test.csv')

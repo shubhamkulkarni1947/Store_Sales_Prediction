@@ -51,12 +51,15 @@ def RetrieveList():
 @app.route("/user/train",methods=["POST"])
 def train():
     if request.method == 'POST':
-
-        data=request.get_json(force=True, silent=False, cache=True)
+        #data=request.get_json(force=True, silent=False, cache=True)
         #csv upload or single data upload for training data
-        if data['file_flag'] :
+        print("Inside /user/train ")
+        print(request.files)
+        if request.files:
+            print("Recieved CSV file having train data to load to db ")
             # make sure the file name in file type html form should be file
             uploaded_file = request.files['file']
+            print(uploaded_file)
             filename = secure_filename(uploaded_file.filename)
             if filename != '':
                 file_ext = os.path.splitext(filename)[1]
@@ -65,11 +68,12 @@ def train():
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
                 sales_service.load_train_csv_to_db(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
                 sales_service.train_model()
-                return {"status":True,"message":"Success fully uploaded the data",data:[]}
+                return {"status":True,"message":"Success fully uploaded the data","data":[]}
         else :
+            data = request.get_json(force=True, silent=False, cache=True)
             sales_service.upload_a_train_data_to_db(data)
             #a single data can't effect a much so no need to train the model again
-            #sales_service.train()
+            sales_service.train_model()
             return {"status":True,'message':"Success fully uploaded the data"}
 
 @app.route("/user/predict",methods=["POST"])

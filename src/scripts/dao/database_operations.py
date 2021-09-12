@@ -1,5 +1,8 @@
+import csv
 import logging
 import json
+
+import null as null
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.query import dict_factory
@@ -74,11 +77,51 @@ def insert_a_train_data(data):
 
     query_executor(query)
 
-
 def load_training_csv_data(filepath):
-    filepath="data/raw/Train.csv"
-    # TODO need to discuss will programmatically dump the data or use direct feature import cs
-    """COPY sales.sales_train FROM 'data/raw/Train.csv' WITH DELIMITER=',' AND HEADER=TRUE"""
-    query=f"""COPY sales.sales_train FROM '{filepath}' WITH DELIMITER=',' AND HEADER=TRUE"""
-    query_executor(query)
+    #filepath="data/raw/Train.csv"
+    session = get_session()
+    try:
+        with open(filepath, "r") as sales:
+            rows =csv.reader(sales)
+            next(rows,None)
+            for sale in sales:
+                sale=sale.split(",")
+                #for covert empty string to none
+                conv = lambda i: i or "None"
+                sale = [conv(i) for i in sale]
+                print(sale)
+                session.execute(f"""
+                INSERT INTO sales.sales_train
+                    ("Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility",
+                    "Item_Type","Item_MRP","Outlet_Identifier","Outlet_Establishment_Year",
+                    "Outlet_Size","Outlet_Location_Type","Outlet_Type","Item_Outlet_Sales")
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s)
+                    """,
+                    (sale[0],eval(sale[1]),sale[2],eval(sale[3]),
+                    sale[4],eval(sale[5]),sale[6],eval(sale[7]),
+                    sale[8],sale[9],sale[10],eval(sale[11])))
 
+                #session.execute(query)
+        # closing the file
+    finally:
+        sales.close()
+
+    #closing the session
+        session.shutdown()
+# def load_training_csv_data(filepath):
+#     #filepath="data/raw/Train.csv"
+#     session = get_session()
+#     try:
+#         session.execute("""
+#         INSERT INTO sales.sales_train
+#                     ("Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility","Item_Type","Item_MRP",
+#                     "Outlet_Identifier","Outlet_Establishment_Year","Outlet_Size","Outlet_Location_Type",
+#                     "Outlet_Type","Item_Outlet_Sales")
+#                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s)
+#                     """,('FDP10',None,'Low Fat',0.127469857,
+#                     'Snack Foods',107.7622,'OUT027',1985,
+#                     'Medium','Tier 3','Supermarket Type3',4022.7636))
+#
+#     finally:
+#     #closing the session
+#         session.shutdown()

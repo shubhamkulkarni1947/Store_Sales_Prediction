@@ -4,14 +4,14 @@ import pandas as pd
 from joblib import load
 import os
 from pathlib import Path
-from .util_script import clean_data, feature_encoding
+from .util_script import clean_data, feature_encoding ,complete_flow_till_model_creation
 
 
 
 # function for training the model
 def train_model():
     #TODO : train the model follow complete process
-    pass
+    complete_flow_till_model_creation()
 
 # function for predicting the value
 def predict_sales_csv(test_csv_filepath):
@@ -43,8 +43,8 @@ def predict_sales(data):
     df = feature_encoding(df)
 
     #predicting result after transformation of data
-    path = Path.cwd().parent.parent.parent
-    model_path = os.path.join(path, '/models/model.pkl')
+    path = Path.cwd()
+    model_path = os.path.join(path, 'models\model.pkl')
     model_pipe = load(model_path)
     prediction = model_pipe.predict(df)
 
@@ -56,7 +56,6 @@ def predict_sales(data):
     print(pred_data)
     return pred_data
 
-    pass
 
 # other supporting function
 

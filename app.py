@@ -78,7 +78,7 @@ def predict():
         data=request.get_json(force=True, silent=False, cache=True)
         # print(data)
         #csv upload or single data upload for training data
-        if data['file_flag'] :
+        if request.files:
             # make sure the file name in file type html form should be file
             uploaded_file = request.files['file']
             filename = secure_filename(uploaded_file.filename)

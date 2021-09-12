@@ -2,6 +2,9 @@
 import src.scripts.dao.database_operations as dao
 import pandas as pd
 from joblib import load
+import os
+from pathlib import Path
+from .util_script import clean_data, feature_encoding
 
 
 
@@ -17,7 +20,8 @@ def predict_sales_csv(test_csv_filepath):
 
     df = pd.read_csv(test_csv_filepath)
     # Transform the dataframe -> cleaning,encoding
-
+    df = clean_data(df)
+    df = feature_encoding(df)
 
     # predicting result after transformation of data
     model_pipe = load('../../../models/model.pkl')
@@ -32,14 +36,16 @@ def predict_sales_csv(test_csv_filepath):
     pass
 
 def predict_sales(data):
-    #TODO : json data with sales data parameter
-    #extract and drop feature
-    #predict the sales and return
+
     df = pd.DataFrame(data)
     #Transform the dataframe -> cleaning,encoding
+    df = clean_data(df)
+    df = feature_encoding(df)
 
     #predicting result after transformation of data
-    model_pipe = load('../../../models/model.pkl')
+    path = Path.cwd().parent.parent.parent
+    model_path = os.path.join(path, '/models/model.pkl')
+    model_pipe = load(model_path)
     prediction = model_pipe.predict(df)
 
     #format the prediction by adding it as a column in the current dataframe
@@ -47,6 +53,7 @@ def predict_sales(data):
 
     #Converting back df to list of dict
     pred_data = df.to_dict('records')
+    print(pred_data)
     return pred_data
 
     pass

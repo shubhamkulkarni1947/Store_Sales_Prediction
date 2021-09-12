@@ -1,6 +1,6 @@
 import logging
 import json
-
+import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -188,26 +188,46 @@ def train_model(train_df):
     clf = Pipeline([('cat_reg', CatBoostRegressor(random_state=2, iterations=3000, learning_rate=0.002, depth=6, silent=True))])
     clf.fit(trainX, trainY)
 
-    print('Trining R2 Score: {}'.format(clf.score(trainX, trainY)))
+    # print('Trining R2 Score: {}'.format(clf.score(trainX, trainY)))
 
     pred = clf.predict(testX)
     model_name = 'CatBoostRegressor'
 
-    predictionResult(testY, pred, model_name)
+    score_data = predictionResult(testY, pred, model_name)
+    # logging training scores to file
+    logToFile('../../other/logs/train_log.txt', score_data)
     dump(clf, '../../../models/model.pkl')
 
 def predictionResult(testY,pred,model_name):
 
     model_acc_scores = {}
-    print('------------------Test Result---------------')
-    print('--------------------{}------------------'.format(model_name))
+    # print('------------------Test Result---------------')
+    # print('--------------------{}------------------'.format(model_name))
     score = r2_score(testY,pred)
     mae = mean_absolute_error(testY,pred)
     mse = mean_squared_error(testY,pred)
     rmse = np.sqrt(mse)
-    scores_dict = {'R2 Score':score,'Mean Absolute Error':mae,'Mean Squared Error':mse,'Root Mean Squared Error':rmse}
-    model_acc_scores[model_name] = scores_dict
-    print('R Squared Score is: {}'.format(score))
-    print('Mean Absolute Error is: {}'.format(mae))
-    print('Mean Squared Error is: {}'.format(mse))
-    print('Root Mean Squared Error is: {}'.format(rmse))
+    model_acc_scores = {'r2_score':score,'mae_score':mae,'mse_score':mse,'rmse_score':rmse,'model_name':model_name}
+    # print('R Squared Score is: {}'.format(score))
+    # print('Mean Absolute Error is: {}'.format(mae))
+    # print('Mean Squared Error is: {}'.format(mse))
+    # print('Root Mean Squared Error is: {}'.format(rmse))
+    return model_acc_scores
+
+
+# Log train data to file
+
+def logToFile(path: str, data: dict):
+    # For logging training scores to file
+    with open(path, 'a') as logfile:
+        currTimestamp = datetime.datetime.now()
+        logfile.write('------------{}---------------\n'.format(currTimestamp))
+        logfile.write('Model Name: {} \n'.format(data['model_name']))
+        logfile.write('R2 Score: {} \n'.format(data['r2_score']))
+        logfile.write('Mean Abs Error: {} \n'.format(data['mae_score']))
+        logfile.write('Mean Sq Error: {} \n'.format(data['mse_score']))
+        logfile.write('Root Mean Sq Error: {} \n'.format(data['rmse_score']))
+        logfile.write('-----------------------------------------------------\n\n')
+
+
+

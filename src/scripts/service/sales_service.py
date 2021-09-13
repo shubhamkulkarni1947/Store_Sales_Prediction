@@ -5,14 +5,15 @@ import numpy as np
 from joblib import load
 import os
 from pathlib import Path
-from .util_script import clean_data, feature_encoding,remove_irrelevant_columns
+from .util_script import clean_data, feature_encoding,remove_irrelevant_columns,complete_flow_till_model_creation
 
 
 
 # function for training the model
 def train_model():
-    #TODO : train the model follow complete process
-    pass
+    # TODO : train the model follow complete process
+    complete_flow_till_model_creation()
+
 
 # function for predicting the value
 def predict_sales_csv(test_csv_filepath):
@@ -54,7 +55,6 @@ def predict_sales(data):
     pred_data = df.to_dict('records')
     return pred_data
 
-    pass
 
 # other supporting function
 
@@ -64,8 +64,11 @@ def load_train_csv_to_db(filepath):
 
 # validate the data
 def upload_a_train_data_to_db(data):
-    dao.insert_a_train_data(data)
+    print(data)
+    for record in data:
+        dao.insert_a_train_data(record)
+
 
 def get_train_data_from_db():
-    data=dao.get_train_data()
+    data = dao.get_train_data()
     return data

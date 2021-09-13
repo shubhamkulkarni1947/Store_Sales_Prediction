@@ -36,7 +36,7 @@ def query_executor(query):
         logging.info(query)
         result = session.execute(query)
     except Exception as e:
-        raise ("query execution got failed with error {}".format(e))
+        raise Exception("query execution got failed with error {}".format(e))
     finally:
         session.shutdown()
     return result if result is not None else "query executed successfully"
@@ -104,27 +104,12 @@ def load_training_csv_data(filepath):
                                  sale[4], eval(sale[5]), sale[6], eval(sale[7]),
                                  sale[8], sale[9], sale[10], eval(sale[11])))
 
-                # session.execute(query)
-        # closing the file
+
+
     finally:
+        # closing the file
         sales.close()
 
         # closing the session
         session.shutdown()
-# def load_training_csv_data(filepath):
-#     #filepath="data/raw/Train.csv"
-#     session = get_session()
-#     try:
-#         session.execute("""
-#         INSERT INTO sales.sales_train
-#                     ("Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility","Item_Type","Item_MRP",
-#                     "Outlet_Identifier","Outlet_Establishment_Year","Outlet_Size","Outlet_Location_Type",
-#                     "Outlet_Type","Item_Outlet_Sales")
-#                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s)
-#                     """,('FDP10',None,'Low Fat',0.127469857,
-#                     'Snack Foods',107.7622,'OUT027',1985,
-#                     'Medium','Tier 3','Supermarket Type3',4022.7636))
-#
-#     finally:
-#     #closing the session
-#         session.shutdown()
+

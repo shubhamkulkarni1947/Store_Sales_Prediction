@@ -1,6 +1,7 @@
 #import statements
 import src.scripts.dao.database_operations as dao
 import pandas as pd
+import numpy as np
 from joblib import load
 import os
 from pathlib import Path
@@ -27,7 +28,7 @@ def predict_sales_csv(test_csv_filepath):
     prediction = model_pipe.predict(test_df)
 
     # format the prediction by adding it as a column in the current dataframe
-    df['Item_Outlet_Sales'] = prediction
+    df['Item_Outlet_Sales'] = np.round(prediction, 3)
 
     # Converting back df to list of dict
     pred_data = df.to_dict('records')
@@ -47,7 +48,7 @@ def predict_sales(data):
     prediction = model_pipe.predict(test_df)
 
     #format the prediction by adding it as a column in the current dataframe
-    df['Item_Outlet_Sales'] = prediction
+    df['Item_Outlet_Sales'] = np.round(prediction, 3)
 
     #Converting back df to list of dict
     pred_data = df.to_dict('records')

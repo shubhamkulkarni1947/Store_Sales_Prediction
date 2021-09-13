@@ -3,25 +3,8 @@ import json
 import datetime
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.stats import zscore, boxcox, probplot
-import seaborn as sns
-from statsmodels.api import OLS
-from sklearn.preprocessing import StandardScaler
-from catboost import CatBoostRegressor, CatBoostClassifier
-from xgboost import XGBRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.svm import SVR
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, classification_report, confusion_matrix
-import warnings
-import numpy as np
-import pandas as pd
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, LabelBinarizer
-from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import LabelEncoder
 from catboost import CatBoostRegressor, CatBoostClassifier
 from xgboost import XGBRegressor
 from sklearn.linear_model import LinearRegression
@@ -31,13 +14,33 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error,cl
 import warnings
 from joblib import dump,load
 
+
+lEncIT_mapping = {'Baking Goods': 0,
+ 'Breakfast': 1,
+ 'Canned': 2,
+ 'Dairy': 3,
+ 'Drinks': 4,
+ 'Frozen Foods': 5,
+ 'Fruits and Vegetables': 6,
+ 'Health and Hygiene': 7,
+ 'Household': 8,
+ 'Meat': 9,
+ 'Others': 10,
+ 'Snack Foods': 11,
+ 'Starchy Foods': 12}
+
+lEncOT_mapping = {'Grocery Store': 0,
+ 'Supermarket Type1': 1,
+ 'Supermarket Type2': 2,
+ 'Supermarket Type3': 3}
+
 # ########################## complete flow #########################################
 
 def complete_flow_till_model_creation():
     train_df=get_train_df()
     test_df=get_test_df()
     resulted_dict=clean_data(train_df,test_df)
-    resulted_dict=feature_encoding(resulted_dict['train_df'],resulted_dict['test_df'])
+    resulted_dict=feature_encoding(resulted_dict['train_df'],False)
     resulted_dict=remove_irrelevant_columns(resulted_dict['train_df'],resulted_dict['test_df'])
     resulted_dict=predict_missing_values_Outlet_size(resulted_dict['train_df'],resulted_dict['test_df'])
     training_model=train_model(resulted_dict['train_df'])
@@ -70,7 +73,9 @@ def clean_data(df: pd.DataFrame):
 
     return df
 
-def feature_encoding(df: pd.DataFrame):
+def feature_encoding(df: pd.DataFrame,isPrediction: bool):
+    global lEncIT_mapping
+    global lEncOT_mapping
 
     df['Item_Type'].replace(
         {'Soft Drinks': 'Drinks', 'Hard Drinks': 'Drinks', 'Breads': 'Baking Goods', 'Seafood': 'Meat'}, inplace=True)
@@ -78,10 +83,20 @@ def feature_encoding(df: pd.DataFrame):
     # Binary Encoding
     df['Item_Fat_Content'].replace({'Low Fat': 0, 'Regular': 1}, inplace=True)
 
-    nominal_features = ['Outlet_Type', 'Item_Type', 'Outlet_Identifier']
-    prefixes = ['out_type', 'item_type', 'out_id']
+    nominal_features = ['Outlet_Type', 'Item_Type']
+    prefixes = ['out_type', 'item_type']
 
-    df = one_hot(df, nominal_features, prefixes)
+    if(isPrediction):
+        df['Item_Type'].replace(lEncIT_mapping,inplace=True)
+        df['Outlet_Type'].replace(lEncOT_mapping, inplace=True)
+    else:
+        lEncIT = LabelEncoder()
+        lEncOT = LabelEncoder()
+
+        df['Outlet_Type'] = lEncOT.fit_transform(df['Outlet_Type'])
+        df['Item_Type'] = lEncIT.fit_transform(df['Item_Type'])
+        lEncIT_mapping = dict(zip(lEncIT.classes_, lEncIT.transform(lEncIT.classes_)))
+        lEncOT_mapping = dict(zip(lEncOT.classes_, lEncOT.transform(lEncOT.classes_)))
 
     # Encoding Ordinal columns
     outlet_size_ord = {'Small': 0, 'Medium': 1, 'High': 2}
@@ -91,11 +106,19 @@ def feature_encoding(df: pd.DataFrame):
 
     df = ord_enc(df, 'Outlet_Location_Type', out_loc_ord)
 
+
+
     # # Deriving new column called Years_Since_Established from Establishment Year
     df['Years_Since_Established'] = df['Outlet_Establishment_Year'].apply(lambda x: 2021 - x)
 
 
     return df
+
+# Label Encoding
+
+def label_enc(df: pd.DataFrame, cols):
+    pass
+
 
 #One_hot encoding nominal variables
 
@@ -115,7 +138,7 @@ def ord_enc(df,col,ord_var):
     return df
 
 def remove_irrelevant_columns(df: pd.DataFrame):
-    df.drop(columns=['Item_Identifier'], axis=1, inplace=True)  # ,'Outlet_Identifier'
+    df.drop(columns=['Item_Identifier','Outlet_Identifier'], axis=1, inplace=True)  # ,'Outlet_Identifier'
     return df
 
 

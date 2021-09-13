@@ -4,7 +4,7 @@ import pandas as pd
 from joblib import load
 import os
 from pathlib import Path
-from .util_script import clean_data, feature_encoding
+from .util_script import clean_data, feature_encoding,remove_irrelevant_columns
 
 
 
@@ -39,21 +39,21 @@ def predict_sales(data):
 
     df = pd.DataFrame(data)
     #Transform the dataframe -> cleaning,encoding
-    df = clean_data(df)
-    df = feature_encoding(df)
+    test_df = clean_data(df)
+    test_df = feature_encoding(test_df,True)
+    test_df = remove_irrelevant_columns(test_df)
 
+    test_df.to_csv('testdf.csv')
     #predicting result after transformation of data
-    path = Path.cwd().parent.parent.parent
-    model_path = os.path.join(path, '/models/model.pkl')
-    model_pipe = load(model_path)
-    prediction = model_pipe.predict(df)
+    # model_path = os.path.join(path, '/models/model.pkl')
+    model_pipe = load('models\model.pkl')
+    prediction = model_pipe.predict(test_df)
 
     #format the prediction by adding it as a column in the current dataframe
     df['Item_Outlet_Sales'] = prediction
 
     #Converting back df to list of dict
     pred_data = df.to_dict('records')
-    print(pred_data)
     return pred_data
 
     pass

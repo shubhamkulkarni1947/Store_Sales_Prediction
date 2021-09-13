@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 from werkzeug.utils import secure_filename
 
 #user defined modules import statements
@@ -77,6 +77,7 @@ def predict():
     if request.method == 'POST':
         data=request.get_json(force=True, silent=False, cache=True)
         # print(data)
+        result = []
         #csv upload or single data upload for training data
         if request.files:
             # make sure the file name in file type html form should be file
@@ -91,8 +92,9 @@ def predict():
                 return {"status":True,'message':"Predicted sales are ",data:[result]}
         else :
             result=sales_service.predict_sales(data)
+            # print([json.dumps(x) for x in result])
+            return json.dumps(result)
 
-            return {"status":True,'message':"Predicted sales is ",data:[result]}
 
 if __name__=='__main__':
     app.run(debug=True,host='localhost', port=5000)

@@ -15,17 +15,16 @@ def train_model():
 
 # function for predicting the value
 def predict_sales_csv(test_csv_filepath):
-    # TODO :load test file as df
-    #predict the csv file data and return it as json
 
     df = pd.read_csv(test_csv_filepath)
     # Transform the dataframe -> cleaning,encoding
-    df = clean_data(df)
-    df = feature_encoding(df)
+    test_df = clean_data(df)
+    test_df = feature_encoding(test_df, True)
+    test_df = remove_irrelevant_columns(test_df)
 
     # predicting result after transformation of data
-    model_pipe = load('../../../models/model.pkl')
-    prediction = model_pipe.predict(df)
+    model_pipe = load('models\model.pkl')
+    prediction = model_pipe.predict(test_df)
 
     # format the prediction by adding it as a column in the current dataframe
     df['Item_Outlet_Sales'] = prediction
@@ -33,7 +32,6 @@ def predict_sales_csv(test_csv_filepath):
     # Converting back df to list of dict
     pred_data = df.to_dict('records')
     return pred_data
-    pass
 
 def predict_sales(data):
 
@@ -43,7 +41,6 @@ def predict_sales(data):
     test_df = feature_encoding(test_df,True)
     test_df = remove_irrelevant_columns(test_df)
 
-    test_df.to_csv('testdf.csv')
     #predicting result after transformation of data
     # model_path = os.path.join(path, '/models/model.pkl')
     model_pipe = load('models\model.pkl')

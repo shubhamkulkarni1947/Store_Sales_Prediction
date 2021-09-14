@@ -3,6 +3,8 @@ import src.scripts.dao.database_operations as dao
 import pandas as pd
 import numpy as np
 from joblib import load
+from flask import json
+import models as models
 import os
 from pathlib import Path
 from .util_script import clean_data, feature_encoding,remove_irrelevant_columns,complete_flow_till_model_creation
@@ -55,6 +57,26 @@ def predict_sales(data):
     pred_data = df.to_dict('records')
     return pred_data
 
+# function for convering training log to dict
+
+def get_train_log() -> list:
+    lst = []
+    with open('src/other/logs/train_log.txt') as f:
+        st = f.read()
+        st = st.split('*')
+        for i in range(len(st)):
+            if i % 2 != 0:
+                stt = st[i].split('\n')
+                dct = {}
+                for j in range(1, len(stt) - 1):
+                    split_text = stt[j].split(': ')
+                    key = split_text[0].strip()
+                    val = split_text[1].strip()
+                    dct[key] = val
+                lst.append(dct)
+    lst = [json.dumps(x, cls=models.SalesModelEncoder) for x in lst]
+    return lst
+
 
 # other supporting function
 
@@ -64,7 +86,7 @@ def load_train_csv_to_db(filepath):
 
 # validate the data
 def upload_a_train_data_to_db(data):
-    print(data)
+    # print(data)
     for record in data:
         dao.insert_a_train_data(record)
 

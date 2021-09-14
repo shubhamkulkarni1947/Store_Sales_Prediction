@@ -94,11 +94,22 @@ def predict():
                     abort(400)
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TEST'], filename))
                 result = sales_service.predict_sales_csv(os.path.join(app.config['UPLOAD_PATH_TEST'], filename))
-                return {"status": True, 'message': "Predicted sales are ", data: [result]}
+                return {"status": True, 'message': "Predicted sales are ", "data": result}
         else:
             result = sales_service.predict_sales(data)
             # print([json.dumps(x) for x in result])
-            return json.dumps(result)
+            return {"status": True, 'message': "Successfully predicted the sales.", "data": result}
+
+
+# previous training records API endpoint
+
+@app.route("/user/train/records", methods=['GET'])
+def get_training_records():
+    records = sales_service.get_train_log()
+    records = [json.loads(x) for x in records]
+    return {"status": True, 'message': "Success", "data": records}
+
+
 
 
 if __name__ == '__main__':

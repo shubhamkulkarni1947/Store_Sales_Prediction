@@ -87,6 +87,9 @@ def load_train_csv_to_db(filepath):
 # validate the data
 def upload_a_train_data_to_db(data):
     # print(data)
+    #Todo add functionality to check duplicate  data inside the data/raw/Train.csv
+    #TODO id generation logic need to pass inside while invoking dao insert open
+    #data["id"]=id
     for record in data:
         dao.insert_a_train_data(record)
 

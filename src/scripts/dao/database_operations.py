@@ -44,7 +44,8 @@ def query_executor(query):
 
 def create_table():
     query = ("CREATE TABLE IF NOT EXISTS  sales.sales_train (\n"
-             "    \"Item_Identifier\" text PRIMARY KEY,\n"
+             "    \"id\" int PRIMARY KEY,\n"
+             "    \"Item_Identifier\" text ,\n"
              "    \"Item_Fat_Content\" text,\n"
              "    \"Item_MRP\" decimal,\n"
              "    \"Item_Outlet_Sales\" decimal,\n"
@@ -69,11 +70,11 @@ def get_train_data():
 
 def insert_a_train_data(data):
     query = f"""INSERT INTO sales.sales_train 
-    ("Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility","Item_Type","Item_MRP",
+    ("id","Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility","Item_Type","Item_MRP",
     "Outlet_Identifier","Outlet_Establishment_Year","Outlet_Size","Outlet_Location_Type",
     "Outlet_Type","Item_Outlet_Sales")
     VALUES 
-    ('{data['Item_Identifier']}',{data['Item_Weight']},'{data['Item_Fat_Content']}',{data['Item_Visibility']},
+    ('{data['id']}', '{data['Item_Identifier']}',{data['Item_Weight']},'{data['Item_Fat_Content']}',{data['Item_Visibility']},
     '{data['Item_Type']}',{data['Item_MRP']},'{data['Outlet_Identifier']}',{data['Outlet_Establishment_Year']},
     '{data['Outlet_Size']}','{data['Outlet_Location_Type']}','{data['Outlet_Type']}',{data['Item_Outlet_Sales']});"""
 
@@ -95,14 +96,14 @@ def load_training_csv_data(filepath):
                 print(sale)
                 session.execute(f"""
                 INSERT INTO sales.sales_train
-                    ("Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility",
+                    ("id","Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility",
                     "Item_Type","Item_MRP","Outlet_Identifier","Outlet_Establishment_Year",
                     "Outlet_Size","Outlet_Location_Type","Outlet_Type","Item_Outlet_Sales")
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s)
                     """,
-                                (sale[0], eval(sale[1]), sale[2], eval(sale[3]),
-                                 sale[4], eval(sale[5]), sale[6], eval(sale[7]),
-                                 sale[8], sale[9], sale[10], eval(sale[11])))
+                                (eval(sale[0]),sale[1], eval(sale[2]), sale[3], eval(sale[4]),
+                                 sale[5], eval(sale[6]), sale[7], eval(sale[8]),
+                                 sale[9], sale[10], sale[11], eval(sale[12] )))
 
 
 

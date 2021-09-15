@@ -78,6 +78,61 @@ def get_train_log() -> list:
     return lst
 
 
+# function for checking for duplicates and adding/incrementing ID
+
+def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, isCSVFile: bool) -> list:
+    train_df = pd.read_csv('data/raw/Train.csv')
+    new_df: pd.DataFrame
+    if isCSVFile:
+        new_df = pd.read_csv('static/files/'+data_csv_file_name+'.csv')
+    else:
+        new_df = pd.DataFrame(data_dict)
+
+    # getting last_id from train_df
+    last_id = max(train_df['id'])
+    print(last_id)
+
+    train_df = train_df.drop(columns=['id'])
+    concat_df: pd.DataFrame = pd.concat([train_df, new_df]).reset_index(drop=True)
+
+    len_duplicate: int = len(concat_df[concat_df.duplicated()])
+    is_duplicate_present: bool = len_duplicate>0
+    # Non duplicates data from new uploaded data (this will return non duplicate data's) if all
+    # duplicate it will return 0 rows
+    non_duplicates_data: pd.DataFrame = pd.merge(new_df,train_df, indicator=True, how='outer').\
+        query('_merge=="left_only"').\
+        drop('_merge', axis=1).reset_index(drop=True)
+
+    print(new_df)
+    print(non_duplicates_data)
+
+    # Case: If all duplicates present then no need to do anything
+    if len(non_duplicates_data) == 0:
+        # No need to train as all data are already present in Train.csv file
+        return []
+
+    # Case: If 1 or more non duplicate row present
+    else:
+        # Concatenating non_duplicate_data to train_df and indexing
+        final_df: pd.DataFrame = pd.concat([train_df, non_duplicates_data]).reset_index(drop=True)
+
+        # saving this final_df inside data/raw/Train.csv
+        final_df.to_csv('data/raw/Train.csv', index=False)
+
+        # Adding indexing (id) to our non duplicate data
+        non_duplicates_data['id'] = np.arange(last_id+1, last_id+len(non_duplicates_data)+1)
+        print('prev id: {}, new_ids: {}'.format(last_id, non_duplicates_data['id']))
+        print(non_duplicates_data.columns)
+        # convert non_duplicates_data to dict before passing it to db
+        non_duplicates_data_dict = non_duplicates_data.to_dict('records')
+
+        return non_duplicates_data_dict
+
+
+
+
+
+
 # other supporting function
 
 
@@ -87,9 +142,6 @@ def load_train_csv_to_db(filepath):
 # validate the data
 def upload_a_train_data_to_db(data):
     # print(data)
-    #Todo add functionality to check duplicate  data inside the data/raw/Train.csv
-    #TODO id generation logic need to pass inside while invoking dao insert open
-    #data["id"]=id
     for record in data:
         dao.insert_a_train_data(record)
 

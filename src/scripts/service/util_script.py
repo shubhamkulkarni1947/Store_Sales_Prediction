@@ -143,6 +143,8 @@ def ord_enc(df, col, ord_var):
 
 def remove_irrelevant_columns(df: pd.DataFrame):
     df.drop(columns=['Item_Identifier', 'Outlet_Identifier'], axis=1, inplace=True)  # ,'Outlet_Identifier'
+    if 'id' in df.columns:
+        df.drop(columns=['id'], axis=1, inplace=True)
     return df
 
 

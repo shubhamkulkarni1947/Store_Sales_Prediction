@@ -69,12 +69,13 @@ def get_train_data():
 
 
 def insert_a_train_data(data):
+    print(data)
     query = f"""INSERT INTO sales.sales_train 
     ("id","Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility","Item_Type","Item_MRP",
     "Outlet_Identifier","Outlet_Establishment_Year","Outlet_Size","Outlet_Location_Type",
     "Outlet_Type","Item_Outlet_Sales")
     VALUES 
-    ('{data['id']}', '{data['Item_Identifier']}',{data['Item_Weight']},'{data['Item_Fat_Content']}',{data['Item_Visibility']},
+    ({data['id']}, '{data['Item_Identifier']}',{data['Item_Weight']},'{data['Item_Fat_Content']}',{data['Item_Visibility']},
     '{data['Item_Type']}',{data['Item_MRP']},'{data['Outlet_Identifier']}',{data['Outlet_Establishment_Year']},
     '{data['Outlet_Size']}','{data['Outlet_Location_Type']}','{data['Outlet_Type']}',{data['Item_Outlet_Sales']});"""
 

@@ -67,14 +67,23 @@ def train():
                 if file_ext not in app.config['UPLOAD_EXTENSIONS']:
                     abort(400)
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
-                sales_service.load_train_csv_to_db(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
-                sales_service.train_model()
-                return {"status": True, "message": "Success fully uploaded the data and trained model again"}
+                data_dict = sales_service.check_duplicate_and_increment_id({}, filename, True)
+                # sales_service.load_train_csv_to_db(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
+                if len(data_dict) == 0:
+                    return {"status": True, "message": "Model is already trained for the provided data."}
+                else:
+                    sales_service.upload_a_train_data_to_db(data_dict)
+                    sales_service.train_model()
+                    return {"status": True, "message": "Successfully uploaded the data and trained model again"}
         else:
             data = request.get_json(force=True, silent=False, cache=True)
-            sales_service.upload_a_train_data_to_db(data)
-            sales_service.train_model()
-            return {"status": True, 'message': "Success fully uploaded the data  and trained model again"}
+            data_dict = sales_service.check_duplicate_and_increment_id(data, '', False)
+            if len(data_dict) == 0:
+                return {"status": True, "message": "Model is already trained for the provided data."}
+            else:
+                sales_service.upload_a_train_data_to_db(data_dict)
+                sales_service.train_model()
+                return {"status": True, 'message': "Successfully uploaded the data  and trained model again"}
 
 
 @app.route("/user/predict", methods=["POST"])

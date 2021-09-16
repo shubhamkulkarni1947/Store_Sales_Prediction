@@ -13,9 +13,9 @@ app = Flask(__name__)
 
 # flask app properties
 # app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
-app.config['UPLOAD_EXTENSIONS'] = ['.csv']
+# app.config['UPLOAD_EXTENSION'] = ['.csv']
 app.config['UPLOAD_PATH_TRAIN'] = 'data/uploads/train'
-app.config['UPLOAD_PATH_TEST'] = 'data/uploads/test'
+app.config['UPLOAD_PATH_TEST'] = 'data/uploads/pred'
 
 
 # response format
@@ -40,11 +40,16 @@ def add_training_data():
 
 
 @app.route('/user/train/all', methods=["GET"])
-def RetrieveList():
-    # sales = get_all_data()
+def getAllTrainData():
     sales = sales_service.get_train_data_from_db()
     sales = [json.loads(x) for x in sales]
-    return {"Sales": sales}
+    return {"status": True, "message": "Success", 'data': sales}
+
+@app.route('/user/train/<ID>', methods=["GET"])
+def getTrainDataById(ID):
+    sales = sales_service.get_data_by_id(eval(ID))
+    sales = [json.loads(x) for x in sales]
+    return {"status": True, "message": "Success", 'data': sales}
 
 
 ###################################### api for train for newly added data  #####################
@@ -54,18 +59,18 @@ def train():
     if request.method == 'POST':
         # data=request.get_json(force=True, silent=False, cache=True)
         # csv upload or single data upload for training data
-        print("Inside /user/train ")
-        print(request.files)
+        # print("Inside /user/train ")
+        # print(request.files)
         if request.files:
-            print("Recieved CSV file having train data to load to db ")
+            # print("Received CSV file having train data to load to db ")
             # make sure the file name in file type html form should be file
             uploaded_file = request.files['file']
-            print(uploaded_file)
+            # print(uploaded_file)
             filename = secure_filename(uploaded_file.filename)
             if filename != '':
                 file_ext = os.path.splitext(filename)[1]
-                if file_ext not in app.config['UPLOAD_EXTENSIONS']:
-                    abort(400)
+                if file_ext != '.csv':
+                    return {"status": False, "message": 'Please upload csv file only.', "data": []}
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
                 data_dict = sales_service.check_duplicate_and_increment_id({}, filename, True)
                 # sales_service.load_train_csv_to_db(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
@@ -85,12 +90,11 @@ def train():
                 sales_service.train_model()
                 return {"status": True, 'message': "Successfully uploaded the data  and trained model again"}
 
+# Prediction of new data
 
 @app.route("/user/predict", methods=["POST"])
 def predict():
     if request.method == 'POST':
-        data = request.get_json(force=True, silent=False, cache=True)
-        # print(data)
         result = []
         # csv upload or single data upload for training data
         if request.files:
@@ -99,13 +103,14 @@ def predict():
             filename = secure_filename(uploaded_file.filename)
             if filename != '':
                 file_ext = os.path.splitext(filename)[1]
-                if file_ext not in app.config['UPLOAD_EXTENSIONS']:
-                    abort(400)
+                if file_ext != '.csv':
+                    return {"status": False, "message": 'Please upload csv file only.', "data": []}
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TEST'], filename))
-                result = sales_service.predict_sales_csv(os.path.join(app.config['UPLOAD_PATH_TEST'], filename))
+                result = sales_service.predict_sales([], filename, True)
                 return {"status": True, 'message': "Predicted sales are ", "data": result}
         else:
-            result = sales_service.predict_sales(data)
+            data = request.get_json(force=True, silent=False, cache=True)
+            result = sales_service.predict_sales(data, '', False)
             # print([json.dumps(x) for x in result])
             return {"status": True, 'message': "Successfully predicted the sales.", "data": result}
 

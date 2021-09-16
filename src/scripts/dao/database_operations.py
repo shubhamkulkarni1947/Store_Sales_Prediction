@@ -8,13 +8,12 @@ from cassandra.query import dict_factory
 
 import os
 from dotenv import load_dotenv
+from models import SalesModelEncoder
 
 load_dotenv()
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-
-from models import SalesModelEncoder
 
 cloud_config = {'secure_connect_bundle': 'config/secure-connect-store-sales.zip'}
 auth_provider = PlainTextAuthProvider(CLIENT_ID, CLIENT_SECRET)
@@ -31,15 +30,18 @@ def get_session():
 
 def query_executor(query):
     session = get_session()
+    print('Connected to DB!')
     try:
         session.row_factory = dict_factory
         logging.info(query)
         result = session.execute(query)
+
     except Exception as e:
         raise Exception("query execution got failed with error {}".format(e))
     finally:
+        return result if result is not None else "query executed successfully"
         session.shutdown()
-    return result if result is not None else "query executed successfully"
+
 
 
 def create_table():
@@ -60,6 +62,11 @@ def create_table():
              ")")
     query_executor(query)
     logging.info("table created successfully")
+
+def get_data_by_id(ID):
+    sales_train_data = query_executor("select * from sales.sales_train where id={}".format(ID)).all()
+    sales_train_data = [json.dumps(x, cls=SalesModelEncoder) for x in sales_train_data]
+    return sales_train_data
 
 
 def get_train_data():
@@ -102,9 +109,9 @@ def load_training_csv_data(filepath):
                     "Outlet_Size","Outlet_Location_Type","Outlet_Type","Item_Outlet_Sales")
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s)
                     """,
-                                (eval(sale[0]),sale[1], eval(sale[2]), sale[3], eval(sale[4]),
+                                (eval(sale[0]), sale[1], eval(sale[2]), sale[3], eval(sale[4]),
                                  sale[5], eval(sale[6]), sale[7], eval(sale[8]),
-                                 sale[9], sale[10], sale[11], eval(sale[12] )))
+                                 sale[9], sale[10], sale[11], eval(sale[12])))
 
 
 
@@ -114,4 +121,3 @@ def load_training_csv_data(filepath):
 
         # closing the session
         session.shutdown()
-

@@ -1,4 +1,4 @@
-#import statements
+# import statements
 import src.scripts.dao.database_operations as dao
 import pandas as pd
 import numpy as np
@@ -7,8 +7,7 @@ from flask import json
 import models as models
 import os
 from pathlib import Path
-from .util_script import clean_data, feature_encoding,remove_irrelevant_columns,complete_flow_till_model_creation
-
+from .util_script import clean_data, feature_encoding, remove_irrelevant_columns, complete_flow_till_model_creation
 
 
 # function for training the model
@@ -17,45 +16,34 @@ def train_model():
     complete_flow_till_model_creation()
 
 
-# function for predicting the value
-def predict_sales_csv(test_csv_filepath):
+def predict_sales(data: list, filename: str, isCsvFile: bool):
+    orig_df: pd.DataFrame
+    df: pd.DataFrame
 
-    df = pd.read_csv(test_csv_filepath)
+    if isCsvFile:
+        df = pd.read_csv('data/uploads/pred/' + filename)
+    else:
+        df = pd.DataFrame(data)
+
+    orig_df = df
+
     # Transform the dataframe -> cleaning,encoding
     test_df = clean_data(df)
     test_df = feature_encoding(test_df, True)
     test_df = remove_irrelevant_columns(test_df)
 
     # predicting result after transformation of data
-    model_pipe = load('models\model.pkl')
+    # model_path = os.path.join(path, '/models/model.pkl')
+    model_pipe = load('models/model.pkl')
     prediction = model_pipe.predict(test_df)
 
     # format the prediction by adding it as a column in the current dataframe
-    df['Item_Outlet_Sales'] = np.round(prediction, 3)
+    orig_df['Item_Outlet_Sales'] = np.round(prediction, 3)
 
     # Converting back df to list of dict
-    pred_data = df.to_dict('records')
+    pred_data = orig_df.to_dict('records')
     return pred_data
 
-def predict_sales(data):
-
-    df = pd.DataFrame(data)
-    #Transform the dataframe -> cleaning,encoding
-    test_df = clean_data(df)
-    test_df = feature_encoding(test_df,True)
-    test_df = remove_irrelevant_columns(test_df)
-
-    #predicting result after transformation of data
-    # model_path = os.path.join(path, '/models/model.pkl')
-    model_pipe = load('models\model.pkl')
-    prediction = model_pipe.predict(test_df)
-
-    #format the prediction by adding it as a column in the current dataframe
-    df['Item_Outlet_Sales'] = np.round(prediction, 3)
-
-    #Converting back df to list of dict
-    pred_data = df.to_dict('records')
-    return pred_data
 
 # function for convering training log to dict
 
@@ -84,7 +72,7 @@ def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, i
     train_df = pd.read_csv('data/raw/Train.csv')
     new_df: pd.DataFrame
     if isCSVFile:
-        new_df = pd.read_csv('static/files/'+data_csv_file_name+'.csv')
+        new_df = pd.read_csv('data/uploads/train/' + data_csv_file_name)
     else:
         new_df = pd.DataFrame(data_dict)
 
@@ -96,11 +84,11 @@ def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, i
     concat_df: pd.DataFrame = pd.concat([train_df, new_df]).reset_index(drop=True)
 
     len_duplicate: int = len(concat_df[concat_df.duplicated()])
-    is_duplicate_present: bool = len_duplicate>0
+    is_duplicate_present: bool = len_duplicate > 0
     # Non duplicates data from new uploaded data (this will return non duplicate data's) if all
     # duplicate it will return 0 rows
-    non_duplicates_data: pd.DataFrame = pd.merge(new_df,train_df, indicator=True, how='outer').\
-        query('_merge=="left_only"').\
+    non_duplicates_data: pd.DataFrame = pd.merge(new_df, train_df, indicator=True, how='outer'). \
+        query('_merge=="left_only"'). \
         drop('_merge', axis=1).reset_index(drop=True)
 
     print(new_df)
@@ -115,12 +103,14 @@ def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, i
     else:
         # Concatenating non_duplicate_data to train_df and indexing
         final_df: pd.DataFrame = pd.concat([train_df, non_duplicates_data]).reset_index(drop=True)
+        final_df = final_df.reset_index()
+        final_df = final_df.rename(columns={'index': 'id'})
 
         # saving this final_df inside data/raw/Train.csv
         final_df.to_csv('data/raw/Train.csv', index=False)
 
         # Adding indexing (id) to our non duplicate data
-        non_duplicates_data['id'] = np.arange(last_id+1, last_id+len(non_duplicates_data)+1)
+        non_duplicates_data['id'] = np.arange(last_id + 1, last_id + len(non_duplicates_data) + 1)
         print('prev id: {}, new_ids: {}'.format(last_id, non_duplicates_data['id']))
         print(non_duplicates_data.columns)
         # convert non_duplicates_data to dict before passing it to db
@@ -129,15 +119,11 @@ def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, i
         return non_duplicates_data_dict
 
 
-
-
-
-
 # other supporting function
-
 
 def load_train_csv_to_db(filepath):
     dao.load_training_csv_data(filepath)
+
 
 # validate the data
 def upload_a_train_data_to_db(data):
@@ -148,4 +134,9 @@ def upload_a_train_data_to_db(data):
 
 def get_train_data_from_db():
     data = dao.get_train_data()
+    return data
+
+
+def get_data_by_id(ID: int):
+    data = dao.get_data_by_id(ID)
     return data

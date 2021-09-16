@@ -153,14 +153,14 @@ def predict_missing_values_Outlet_size(df: pd.DataFrame):
     out_train_pred_df = df[df['Outlet_Size'].isna()]
     # out_test_pred_df = test_df[test_df['Outlet_Size'].isna()]
     out_train_df = df[~df['Outlet_Size'].isna()]  # for training
-    out_train_df.to_csv('outtrain.csv')
-    print(out_train_df.isna().sum())
-    print(out_train_df['Outlet_Size'].dtype)
+    # out_train_df.to_csv('outtrain.csv')
+    # print(out_train_df.isna().sum())
+    # print(out_train_df['Outlet_Size'].dtype)
     out_train_df['Outlet_Size'] = out_train_df['Outlet_Size'].replace({'Small':0,'Medium':1,'High':2})
     # out_train_df.drop(columns=['Item_Identifier','Outlet_Identifier'],inplace=True)
     X = out_train_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales'])
     y = out_train_df['Outlet_Size']
-    print(y.value_counts())
+    # print(y.value_counts())
     trainX, testX, trainY, testY = train_test_split(X, y, random_state=22, test_size=0.2)
     rf_model = RandomForestClassifier(random_state=2)
     rf_model.fit(trainX, trainY)
@@ -204,7 +204,7 @@ def train_model(train_df):
     score_data = predictionResult(testY, pred, model_name)
     # logging training scores to file
     logToFile('src/other/logs/train_log.txt', score_data)
-    dump(clf, 'models/model1.pkl')
+    dump(clf, 'models/model.pkl')
 
 
 def predictionResult(testY, pred, model_name):

@@ -1,12 +1,11 @@
 import json
-import logging
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request
 from werkzeug.utils import secure_filename
 
 # user defined modules import statements
 from src.scripts.dao.database_operations import create_table
-import src.scripts.service.sales_service as sales_service
+from src.scripts.service import sales_service
 
 # declaration flask app for discovering all packages
 app = Flask(__name__)
@@ -27,27 +26,28 @@ def create_tables():
     create_table()
 
 
-@app.route('/user/train/create', methods=['GET', 'POST'])
-def add_training_data():
-    if request.method == 'GET':
-        return {"message": "please hit post request"}
-    if request.method == 'POST':
-        data = request.get_json(force=True, silent=False, cache=True)
-        logging.info(f"post request came with data {data}")
-        # insert_a_sale_data(data)
-        sales_service.upload_a_train_data_to_db(data)
-        return {"status": True, 'message': "Successfully store the data into database", data: []}
+# @app.route('/user/train/create', methods=['GET', 'POST'])
+# def add_training_data():
+#     if request.method == 'GET':
+#         return {"status":, "message": "please hit post request"}
+#     if request.method == 'POST':
+#         data = request.get_json(force=True, silent=False, cache=True)
+#         logging.info('post request came with data %s', data)
+#         # insert_a_sale_data(data)
+#         sales_service.upload_a_train_data_to_db(data)
+#         return {"status": True, 'message': "Successfully store the data into database", data: []}
 
 
 @app.route('/user/train/all', methods=["GET"])
-def getAllTrainData():
+def get_all_train_data():
     sales = sales_service.get_train_data_from_db()
     sales = [json.loads(x) for x in sales]
     return {"status": True, "message": "Success", 'data': sales}
 
+
 @app.route('/user/train/<_id>', methods=["GET"])
-def getTrainDataById(_id):
-    sales = sales_service.get_data_by_id(eval(_id))
+def get_train_data_by_id(_id):
+    sales = sales_service.get_data_by_id(int(_id))
     sales = [json.loads(x) for x in sales]
     return {"status": True, "message": "Success", 'data': sales}
 
@@ -71,7 +71,7 @@ def train():
                 file_ext = os.path.splitext(filename)[1]
                 if file_ext != '.csv':
                     return {"status": False,
-                            "message": 'Please upload csv file only.', "data": []}
+                            "message": 'Please upload csv file only.'}
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
                 data_dict = sales_service.check_duplicate_and_increment_id({}, filename, True)
                 if len(data_dict) == 0:
@@ -93,6 +93,7 @@ def train():
                 sales_service.train_model()
                 return {"status": True,
                         'message': "Successfully uploaded the data  and trained model again"}
+
 
 # Prediction of new data
 
@@ -126,8 +127,6 @@ def get_training_records():
     records = sales_service.get_train_log()
     records = [json.loads(x) for x in records]
     return {"status": True, 'message': "Success", "data": records}
-
-
 
 
 if __name__ == '__main__':

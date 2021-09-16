@@ -3,4 +3,8 @@ disable=
     C0114,
     C0116,
     R1705,
-    R1710 # missing-module-docstring
+    R1710,
+    W0703 ,
+    C0103,
+    W0612,
+    R0911

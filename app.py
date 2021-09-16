@@ -45,9 +45,9 @@ def getAllTrainData():
     sales = [json.loads(x) for x in sales]
     return {"status": True, "message": "Success", 'data': sales}
 
-@app.route('/user/train/<ID>', methods=["GET"])
-def getTrainDataById(ID):
-    sales = sales_service.get_data_by_id(eval(ID))
+@app.route('/user/train/<_id>', methods=["GET"])
+def getTrainDataById(_id):
+    sales = sales_service.get_data_by_id(eval(_id))
     sales = [json.loads(x) for x in sales]
     return {"status": True, "message": "Success", 'data': sales}
 
@@ -70,25 +70,29 @@ def train():
             if filename != '':
                 file_ext = os.path.splitext(filename)[1]
                 if file_ext != '.csv':
-                    return {"status": False, "message": 'Please upload csv file only.', "data": []}
+                    return {"status": False,
+                            "message": 'Please upload csv file only.', "data": []}
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
                 data_dict = sales_service.check_duplicate_and_increment_id({}, filename, True)
-                # sales_service.load_train_csv_to_db(os.path.join(app.config['UPLOAD_PATH_TRAIN'], filename))
                 if len(data_dict) == 0:
-                    return {"status": True, "message": "Model is already trained for the provided data."}
+                    return {"status": True,
+                            "message": "Model is already trained for the provided data."}
                 else:
                     sales_service.upload_a_train_data_to_db(data_dict)
                     sales_service.train_model()
-                    return {"status": True, "message": "Successfully uploaded the data and trained model again"}
+                    return {"status": True,
+                            "message": "Successfully uploaded the data and trained model again"}
         else:
             data = request.get_json(force=True, silent=False, cache=True)
             data_dict = sales_service.check_duplicate_and_increment_id(data, '', False)
             if len(data_dict) == 0:
-                return {"status": True, "message": "Model is already trained for the provided data."}
+                return {"status": True,
+                        "message": "Model is already trained for the provided data."}
             else:
                 sales_service.upload_a_train_data_to_db(data_dict)
                 sales_service.train_model()
-                return {"status": True, 'message': "Successfully uploaded the data  and trained model again"}
+                return {"status": True,
+                        'message': "Successfully uploaded the data  and trained model again"}
 
 # Prediction of new data
 

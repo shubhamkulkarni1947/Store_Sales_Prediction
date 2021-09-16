@@ -78,8 +78,12 @@ def train():
                     return {"status": True,
                             "message": "Model is already trained for the provided data."}
                 else:
-                    sales_service.upload_a_train_data_to_db(data_dict)
-                    sales_service.train_model()
+                    try:
+                        sales_service.upload_a_train_data_to_db(data_dict)
+                        sales_service.train_model()
+                    except Exception as e:
+                        return {"status": False,
+                                "message": "Some error occurred."}
                     return {"status": True,
                             "message": "Successfully uploaded the data and trained model again"}
         else:
@@ -89,8 +93,12 @@ def train():
                 return {"status": True,
                         "message": "Model is already trained for the provided data."}
             else:
-                sales_service.upload_a_train_data_to_db(data_dict)
-                sales_service.train_model()
+                try:
+                    sales_service.upload_a_train_data_to_db(data_dict)
+                    sales_service.train_model()
+                except Exception as e:
+                    return {"status": False,
+                            "message": "Some error occurred."}
                 return {"status": True,
                         'message': "Successfully uploaded the data  and trained model again"}
 
@@ -115,7 +123,11 @@ def predict():
                 return {"status": True, 'message': "Predicted sales are ", "data": result}
         else:
             data = request.get_json(force=True, silent=False, cache=True)
-            result = sales_service.predict_sales(data, '', False)
+            try:
+                result = sales_service.predict_sales(data, '', False)
+            except Exception as e:
+                return {"status": False, 'message': str(e), "data": []}
+
             # print([json.dumps(x) for x in result])
             return {"status": True, 'message': "Successfully predicted the sales.", "data": result}
 

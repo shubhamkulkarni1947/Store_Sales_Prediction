@@ -76,3 +76,4 @@ wcwidth==0.2.5
 webencodings==0.5.1
 Werkzeug==2.0.1
 pylint
+pytest

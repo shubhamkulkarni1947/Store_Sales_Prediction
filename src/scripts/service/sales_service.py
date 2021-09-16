@@ -25,7 +25,7 @@ def predict_sales(data: list, filename: str, isCsvFile: bool):
     else:
         df = pd.DataFrame(data)
 
-    orig_df = df
+    orig_df = df.copy()
 
     # Transform the dataframe -> cleaning,encoding
     test_df = clean_data(df)

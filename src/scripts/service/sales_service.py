@@ -5,9 +5,7 @@ import numpy as np
 from joblib import load
 from flask import json
 import models as models
-import os
-from pathlib import Path
-from .util_script import clean_data, feature_encoding, remove_irrelevant_columns, complete_flow_till_model_creation
+from util_script import clean_data, feature_encoding, remove_irrelevant_columns, complete_flow_till_model_creation
 
 
 # function for training the model

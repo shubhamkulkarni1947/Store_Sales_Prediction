@@ -1,17 +1,14 @@
-import logging
+# import logging
 import json
 import datetime
 import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
-from catboost import CatBoostRegressor, CatBoostClassifier
-from xgboost import XGBRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, classification_report, confusion_matrix
-import warnings
+from catboost import CatBoostRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from joblib import dump, load
 import src.scripts.dao.database_operations as dao
 

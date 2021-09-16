@@ -43,7 +43,6 @@ def query_executor(query):
         session.shutdown()
 
 
-
 def create_table():
     query = ("CREATE TABLE IF NOT EXISTS  sales.sales_train (\n"
              "    \"id\" int PRIMARY KEY,\n"
@@ -62,6 +61,7 @@ def create_table():
              ")")
     query_executor(query)
     logging.info("table created successfully")
+
 
 def get_data_by_id(ID):
     sales_train_data = query_executor("select * from sales.sales_train where id={}".format(ID)).all()
@@ -109,11 +109,9 @@ def load_training_csv_data(filepath):
                     "Outlet_Size","Outlet_Location_Type","Outlet_Type","Item_Outlet_Sales")
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s)
                     """,
-                                (eval(sale[0]), sale[1], eval(sale[2]), sale[3], eval(sale[4]),
-                                 sale[5], eval(sale[6]), sale[7], eval(sale[8]),
-                                 sale[9], sale[10], sale[11], eval(sale[12])))
-
-
+                                (int(sale[0]), sale[1], float(sale[2]), sale[3], float(sale[4]),
+                                 sale[5], float(sale[6]), sale[7], float(sale[8]),
+                                 sale[9], sale[10], sale[11], float(sale[12])))
 
     finally:
         # closing the file

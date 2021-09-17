@@ -37,7 +37,7 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Unit tests / coverage reports
 htmlcov/
 .tox/
 .nox/
@@ -98,6 +98,8 @@ ipython_config.py
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
+.pylintrc
+src/scripts/service/.ipynb_checkpoints
 # Celery stuff
 celerybeat-schedule
 celerybeat.pid
@@ -140,4 +142,4 @@ dmypy.json
 cython_debug/
 
 #security bundle zip
-/config/secure-connect-store-sales.zip
+#/config/secure-connect-store-sales.zip

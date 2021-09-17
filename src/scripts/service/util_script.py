@@ -5,15 +5,14 @@ import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
-from catboost import CatBoostRegressor, CatBoostClassifier
-from xgboost import XGBRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, classification_report, confusion_matrix
-import warnings
+from catboost import CatBoostRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from joblib import dump, load
 import src.scripts.dao.database_operations as dao
+
+pd.options.mode.chained_assignment = None
 
 lEncIT_mapping = {'Baking Goods': 0,
                   'Breakfast': 1,
@@ -43,7 +42,8 @@ def complete_flow_till_model_creation():
     train_df = feature_encoding(train_df, False)
     train_df = remove_irrelevant_columns(train_df)
     train_df = predict_missing_values_Outlet_size(train_df)
-    train_model(train_df)
+    score_data = train_model(train_df)
+    return score_data
 
 
 # ######################### load data source ##############################
@@ -97,8 +97,8 @@ def feature_encoding(df: pd.DataFrame, isPrediction: bool):
         lEncIT = LabelEncoder()
         lEncOT = LabelEncoder()
 
-        df['Outlet_Type'] = lEncOT.fit_transform(df['Outlet_Type'])
-        df['Item_Type'] = lEncIT.fit_transform(df['Item_Type'])
+        df.loc[:, 'Outlet_Type'] = lEncOT.fit_transform(df['Outlet_Type'])
+        df.loc[:, 'Item_Type'] = lEncIT.fit_transform(df['Item_Type'])
         lEncIT_mapping = dict(zip(lEncIT.classes_, lEncIT.transform(lEncIT.classes_)))
         lEncOT_mapping = dict(zip(lEncOT.classes_, lEncOT.transform(lEncOT.classes_)))
 
@@ -149,18 +149,19 @@ def remove_irrelevant_columns(df: pd.DataFrame):
 
 
 def predict_missing_values_Outlet_size(df: pd.DataFrame):
+    logging.info('Predicting missing values for Outlet_Size')
     df['Outlet_Size'].replace({'None': np.nan}, inplace=True)
     out_train_pred_df = df[df['Outlet_Size'].isna()]
     # out_test_pred_df = test_df[test_df['Outlet_Size'].isna()]
     out_train_df = df[~df['Outlet_Size'].isna()]  # for training
-    out_train_df.to_csv('outtrain.csv')
-    print(out_train_df.isna().sum())
-    print(out_train_df['Outlet_Size'].dtype)
-    out_train_df['Outlet_Size'] = out_train_df['Outlet_Size'].replace({'Small':0,'Medium':1,'High':2})
+    # out_train_df.to_csv('outtrain.csv')
+    # print(out_train_df.isna().sum())
+    # print(out_train_df['Outlet_Size'].dtype)
+    out_train_df['Outlet_Size'].replace({'Small': 0, 'Medium': 1, 'High': 2}, inplace=True)
     # out_train_df.drop(columns=['Item_Identifier','Outlet_Identifier'],inplace=True)
     X = out_train_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales'])
     y = out_train_df['Outlet_Size']
-    print(y.value_counts())
+    # print(y.value_counts())
     trainX, testX, trainY, testY = train_test_split(X, y, random_state=22, test_size=0.2)
     rf_model = RandomForestClassifier(random_state=2)
     rf_model.fit(trainX, trainY)
@@ -168,8 +169,8 @@ def predict_missing_values_Outlet_size(df: pd.DataFrame):
     # pred = cat_model.predict(testX)
 
     out_train_pred = rf_model.predict(out_train_pred_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales']))
-
-    out_train_pred_df['Outlet_Size'] = out_train_pred
+    # print(out_train_pred)
+    out_train_pred_df.loc[:, 'Outlet_Size'] = out_train_pred
     # out_test_pred = rf_model.predict(out_test_pred_df.drop(columns=['Outlet_Size']))
     # out_test_pred_df['Outlet_Size'] = out_test_pred
 
@@ -204,23 +205,17 @@ def train_model(train_df):
     score_data = predictionResult(testY, pred, model_name)
     # logging training scores to file
     logToFile('src/other/logs/train_log.txt', score_data)
-    dump(clf, 'models/model1.pkl')
+    dump(clf, 'models/model.pkl')
+    return score_data
 
 
 def predictionResult(testY, pred, model_name):
-    model_acc_scores = {}
-    # print('------------------Test Result---------------')
-    # print('--------------------{}------------------'.format(model_name))
-    score = r2_score(testY, pred)
-    mae = mean_absolute_error(testY, pred)
-    mse = mean_squared_error(testY, pred)
-    rmse = np.sqrt(mse)
-    model_acc_scores = {'r2_score': score, 'mae_score': mae, 'mse_score': mse, 'rmse_score': rmse,
+    score = np.round((r2_score(testY, pred) * 100), 2)
+    mae = np.round(mean_absolute_error(testY, pred), 2)
+    mse = np.round(mean_squared_error(testY, pred), 2)
+    rmse = np.round(np.sqrt(mse), 2)
+    model_acc_scores = {'r2_accuracy_score': score, 'mae_score': mae, 'mse_score': mse, 'rmse_score': rmse,
                         'model_name': model_name}
-    # print('R Squared Score is: {}'.format(score))
-    # print('Mean Absolute Error is: {}'.format(mae))
-    # print('Mean Squared Error is: {}'.format(mse))
-    # print('Root Mean Squared Error is: {}'.format(rmse))
     return model_acc_scores
 
 
@@ -233,7 +228,7 @@ def logToFile(path: str, data: dict):
         logfile.write('---------------------------------------------------*\n')
         logfile.write('TimeStamp: {} \n'.format(currTimestamp))
         logfile.write('Model Name: {} \n'.format(data['model_name']))
-        logfile.write('R2 Score: {} \n'.format(data['r2_score']))
+        logfile.write('R2 Score: {} % \n'.format(data['r2_accuracy_score']))
         logfile.write('Mean Abs Error: {} \n'.format(data['mae_score']))
         logfile.write('Mean Sq Error: {} \n'.format(data['mse_score']))
         logfile.write('Root Mean Sq Error: {} \n'.format(data['rmse_score']))

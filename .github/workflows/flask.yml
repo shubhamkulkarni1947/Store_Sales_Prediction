@@ -2,9 +2,9 @@ name: Flask
 
 on:
   push:
-    branches: [ feature/kamlesh ]
+    branches: [ main ]
   pull_request:
-    branches: [ feature/kamlesh ]
+    branches: [ main ]
 
 jobs:
   build:

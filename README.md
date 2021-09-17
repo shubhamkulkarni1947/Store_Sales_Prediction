@@ -1,4 +1,5 @@
 [![Flask](https://github.com/mgarg123/Store_Sales_Prediction/actions/workflows/flask.yml/badge.svg)](https://github.com/mgarg123/Store_Sales_Prediction/actions/workflows/flask.yml)
+![GitHub repo size](https://img.shields.io/github/repo-size/mgarg123/Store_Sales_Prediction)
 
 # Store_Sales_Prediction
 

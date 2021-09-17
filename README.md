@@ -1,3 +1,5 @@
+[![Flask](https://github.com/mgarg123/Store_Sales_Prediction/actions/workflows/flask.yml/badge.svg)](https://github.com/mgarg123/Store_Sales_Prediction/actions/workflows/flask.yml)
+
 # Store_Sales_Prediction
 
 ## Setting up virtualenv and installing dependency

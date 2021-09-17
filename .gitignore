@@ -99,7 +99,7 @@ ipython_config.py
 __pypackages__/
 
 .pylintrc
-
+src/scripts/service/.ipynb_checkpoints
 # Celery stuff
 celerybeat-schedule
 celerybeat.pid

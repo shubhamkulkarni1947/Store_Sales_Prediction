@@ -5,13 +5,16 @@ import numpy as np
 from joblib import load
 from flask import json
 import models as models
-from util_script import clean_data, feature_encoding, remove_irrelevant_columns, complete_flow_till_model_creation
+from src.scripts.service.util_script import clean_data, feature_encoding, remove_irrelevant_columns, \
+    complete_flow_till_model_creation
+
+pd.options.mode.chained_assignment = None
 
 
 # function for training the model
 def train_model():
-    # TODO : train the model follow complete process
-    complete_flow_till_model_creation()
+    score_data = complete_flow_till_model_creation()
+    return score_data
 
 
 def predict_sales(data: list, filename: str, isCsvFile: bool):
@@ -36,7 +39,7 @@ def predict_sales(data: list, filename: str, isCsvFile: bool):
     prediction = model_pipe.predict(test_df)
 
     # format the prediction by adding it as a column in the current dataframe
-    orig_df['Item_Outlet_Sales'] = np.round(prediction, 3)
+    orig_df.loc[:, 'Item_Outlet_Sales'] = np.round(prediction, 3)
 
     # Converting back df to list of dict
     pred_data = orig_df.to_dict('records')
@@ -76,7 +79,7 @@ def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, i
 
     # getting last_id from train_df
     last_id = max(train_df['id'])
-    print(last_id)
+    # print(last_id)
 
     train_df = train_df.drop(columns=['id'])
     concat_df: pd.DataFrame = pd.concat([train_df, new_df]).reset_index(drop=True)
@@ -89,8 +92,8 @@ def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, i
         query('_merge=="left_only"'). \
         drop('_merge', axis=1).reset_index(drop=True)
 
-    print(new_df)
-    print(non_duplicates_data)
+    # print(new_df)
+    # print(non_duplicates_data)
 
     # Case: If all duplicates present then no need to do anything
     if len(non_duplicates_data) == 0:
@@ -108,9 +111,9 @@ def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, i
         final_df.to_csv('data/raw/Train.csv', index=False)
 
         # Adding indexing (id) to our non duplicate data
-        non_duplicates_data['id'] = np.arange(last_id + 1, last_id + len(non_duplicates_data) + 1)
-        print('prev id: {}, new_ids: {}'.format(last_id, non_duplicates_data['id']))
-        print(non_duplicates_data.columns)
+        non_duplicates_data.loc[:, 'id'] = np.arange(last_id + 1, last_id + len(non_duplicates_data) + 1)
+        # print('prev id: {}, new_ids: {}'.format(last_id, non_duplicates_data['id']))
+        # print(non_duplicates_data.columns)
         # convert non_duplicates_data to dict before passing it to db
         non_duplicates_data_dict = non_duplicates_data.to_dict('records')
 

@@ -21,7 +21,7 @@ auth_provider = PlainTextAuthProvider(CLIENT_ID, CLIENT_SECRET)
 
 def get_session():
     try:
-        cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
+        cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider, protocol_version=4)
         session = cluster.connect()
     except Exception as e:
         raise Exception("Not able to connect to database. Error - {}".format(e))
@@ -30,7 +30,7 @@ def get_session():
 
 def query_executor(query):
     session = get_session()
-    print('Connected to DB!')
+    logging.info('Connected to DB!')
     try:
         session.row_factory = dict_factory
         logging.info(query)
@@ -76,7 +76,7 @@ def get_train_data():
 
 
 def insert_a_train_data(data):
-    print(data)
+    # print(data)
     query = f"""INSERT INTO sales.sales_train 
     ("id","Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility","Item_Type","Item_MRP",
     "Outlet_Identifier","Outlet_Establishment_Year","Outlet_Size","Outlet_Location_Type",
@@ -101,7 +101,7 @@ def load_training_csv_data(filepath):
                 # for covert empty string to none
                 conv = lambda i: i or "None"
                 sale = [conv(i) for i in sale]
-                print(sale)
+                # print(sale)
                 session.execute(f"""
                 INSERT INTO sales.sales_train
                     ("id","Item_Identifier","Item_Weight","Item_Fat_Content","Item_Visibility",

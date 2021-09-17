@@ -52,7 +52,7 @@ def get_train_data_by_id(_id):
     return {"status": True, "message": "Success", 'data': sales}
 
 
-###################################### api for train for newly added data  #####################
+# ------------------------ api for train for newly added data  -------------------
 # request form for getting data
 @app.route("/user/train", methods=["POST"])
 def train():
@@ -79,13 +79,15 @@ def train():
                             "message": "Model is already trained for the provided data."}
                 else:
                     try:
-                        sales_service.upload_a_train_data_to_db(data_dict)
-                        sales_service.train_model()
+                        pass
+
                     except Exception as e:
                         return {"status": False,
-                                "message": "Some error occurred."}
+                                "message": str(e)}
+                    sales_service.upload_a_train_data_to_db(data_dict)
+                    score_data = sales_service.train_model()
                     return {"status": True,
-                            "message": "Successfully uploaded the data and trained model again"}
+                            "message": "Successfully uploaded the data and trained model again", "data": score_data}
         else:
             data = request.get_json(force=True, silent=False, cache=True)
             data_dict = sales_service.check_duplicate_and_increment_id(data, '', False)
@@ -95,12 +97,12 @@ def train():
             else:
                 try:
                     sales_service.upload_a_train_data_to_db(data_dict)
-                    sales_service.train_model()
+                    score_data = sales_service.train_model()
                 except Exception as e:
                     return {"status": False,
-                            "message": "Some error occurred."}
+                            "message": str(e)}
                 return {"status": True,
-                        'message': "Successfully uploaded the data  and trained model again"}
+                        'message': "Successfully uploaded the data  and trained model again", "data": score_data}
 
 
 # Prediction of new data

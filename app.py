@@ -87,7 +87,8 @@ def train():
                     sales_service.upload_a_train_data_to_db(data_dict)
                     score_data = sales_service.train_model()
                     return {"status": True,
-                            "message": "Successfully uploaded the data and trained model again", "data": score_data}
+                            "message": "Successfully uploaded the data and trained model again",
+                            "data": score_data}
         else:
             data = request.get_json(force=True, silent=False, cache=True)
             data_dict = sales_service.check_duplicate_and_increment_id(data, '', False)
@@ -102,7 +103,8 @@ def train():
                     return {"status": False,
                             "message": str(e)}
                 return {"status": True,
-                        'message': "Successfully uploaded the data  and trained model again", "data": score_data}
+                        'message': "Successfully uploaded the data and trained model again",
+                        "data": score_data}
 
 
 # Prediction of new data

@@ -1,9 +1,7 @@
-cassandra-driver
-catboost
-Flask
-Flask-RESTful
 gunicorn
 joblib
+Flask
+Flask-RESTful
 jsonschema
 matplotlib
 matplotlib-inline
@@ -17,3 +15,5 @@ statsmodels
 Werkzeug
 pylint
 pytest
+cassandra-driver
+catboost

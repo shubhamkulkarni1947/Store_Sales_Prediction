@@ -2,11 +2,12 @@ import json
 import os
 from flask import Flask, request
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 
 # user defined modules import statements
 from src.scripts.dao.database_operations import create_table
 from src.scripts.service import sales_service
-from dotenv import load_dotenv
+
 load_dotenv()
 # declaration flask app for discovering all packages
 app = Flask(__name__)

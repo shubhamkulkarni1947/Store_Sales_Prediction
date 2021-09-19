@@ -6,7 +6,8 @@ from werkzeug.utils import secure_filename
 # user defined modules import statements
 from src.scripts.dao.database_operations import create_table
 from src.scripts.service import sales_service
-
+from dotenv import load_dotenv
+load_dotenv()
 # declaration flask app for discovering all packages
 app = Flask(__name__)
 
@@ -150,4 +151,5 @@ def get_training_records():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    PORT = os.getenv('PORT') or 5000
+    app.run(debug=True, host='0.0.0.0', port=PORT)

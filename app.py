@@ -42,7 +42,7 @@ def create_tables():
 
 @app.route('/health')
 def health_check():
-    return {"status": True, "message": "OK"}
+    return "ok"
 
 @app.route('/user/train/all', methods=["GET"])
 def get_all_train_data():

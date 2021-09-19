@@ -38,6 +38,10 @@ def create_tables():
 #         return {"status": True, 'message': "Successfully store the data into database", data: []}
 
 
+@app.route('/health')
+def health_check():
+    return {"status": True, "message": "OK"}
+
 @app.route('/user/train/all', methods=["GET"])
 def get_all_train_data():
     sales = sales_service.get_train_data_from_db()

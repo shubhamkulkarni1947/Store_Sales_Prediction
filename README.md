@@ -1,10 +1,8 @@
 [![Flask](https://github.com/mgarg123/Store_Sales_Prediction/actions/workflows/flask.yml/badge.svg)](https://github.com/mgarg123/Store_Sales_Prediction/actions/workflows/flask.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/mgarg123/Store_Sales_Prediction)
+![Heroku](https://heroku-badge.herokuapp.com/?app=sales-pred-app&root=health)
 <br/>
 
-<a href = "https://github.com/mgarg123/Store_Sales_Prediction/graphs/contributors">
-<img src = "https://contrib.rocks/image?repo=mgarg123/Store_Sales_Prediction"/>
-</a>
 
 # Store_Sales_Prediction
 

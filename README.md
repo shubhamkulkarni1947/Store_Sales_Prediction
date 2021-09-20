@@ -3,6 +3,7 @@
 ![Heroku](https://heroku-badge.herokuapp.com/?app=sales-pred-app&root=health)
 <br/>
 
+### APP URL: <u><a href="https://sales-pred-app.herokuapp.com">Open App</a><u>
 
 # Store_Sales_Prediction
 

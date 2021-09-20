@@ -2,7 +2,6 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/mgarg123/Store_Sales_Prediction)
 ![Heroku](https://heroku-badge.herokuapp.com/?app=sales-pred-app&root=health)
 [![Updates](https://pyup.io/repos/github/mgarg123/Store_Sales_Prediction/shield.svg)](https://pyup.io/repos/github/mgarg123/Store_Sales_Prediction/)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 <br/>
 
 ### APP URL: <u><a href="https://sales-pred-app.herokuapp.com">Open App</a><u>

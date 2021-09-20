@@ -1,7 +1,7 @@
 gunicorn
 joblib
 Flask
-Flask-RESTful
+Flask-RESTful==0.3.9
 jsonschema
 matplotlib
 matplotlib-inline

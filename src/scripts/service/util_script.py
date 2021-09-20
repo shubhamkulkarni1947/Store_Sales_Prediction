@@ -12,6 +12,8 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from joblib import dump, load
 import src.scripts.dao.database_operations as dao
 
+log = logging.getLogger('util_script')
+
 pd.options.mode.chained_assignment = None
 
 lEncIT_mapping = {'Baking Goods': 0,
@@ -38,16 +40,17 @@ lEncOT_mapping = {'Grocery Store': 0,
 
 def complete_flow_till_model_creation():
     train_df = get_train_df()
-    train_df = clean_data(train_df)
-    train_df = feature_encoding(train_df, False)
+    train_df = clean_data(train_df, isTrain=True)
+    train_df = feature_encoding(train_df, isPrediction=False)
     train_df = remove_irrelevant_columns(train_df)
-    train_df = predict_missing_values_Outlet_size(train_df)
+    train_df = predict_missing_values_Outlet_size(train_df, isTrain=True)
     score_data = train_model(train_df)
     return score_data
 
 
 # ######################### load data source ##############################
 def get_train_df():
+    log.info("Getting ALl training data from DB")
     #    return pd.read_csv('../../../data/raw/Train.csv')
     train_data = dao.get_train_data()
     sales = [json.loads(x) for x in train_data]
@@ -58,26 +61,44 @@ def get_test_df():
     return pd.read_csv('../../../data/raw/Test.csv')
 
 
-# ######################### clean data scource ##############################
-def clean_data(df: pd.DataFrame):
+# ######################### clean data source ##############################
+def clean_data(df: pd.DataFrame, isTrain: bool):
+    log.info("Cleaning/Imputing Data")
     # ######################### handle_missing_value ############################
 
-    # imputing Missing Value for Item_Weight with Mean
-    df['Item_Weight'].fillna(df['Item_Weight'].mean(), inplace=True)
+    if isTrain:
+        with open('models/imputation_values.txt', 'w') as f:
+            f.write('mean_item_wight={}\n'.format(df['Item_Weight'].mean()))
+            f.write('median_item_visibility={}\n'.format(df['Item_Visibility'].median()))
 
-    # TODO applying tree based model to predict the value because null are larger in numbers
-    # print(train_df['Outlet_Size'].value_counts())
+        # imputing Missing Value for Item_Weight with Mean
+        df['Item_Weight'].fillna(df['Item_Weight'].mean(), inplace=True)
 
-    df['Item_Visibility'].replace({0: df['Item_Visibility'].median()}, inplace=True)
+        df['Item_Visibility'].replace({0: df['Item_Visibility'].median()}, inplace=True)
 
-    # ############################# Removing duplicates##############################################
+        # ############################# Removing duplicates##########################
 
-    df['Item_Fat_Content'].replace({'LF': 'Low Fat', 'low fat': 'Low Fat', 'reg': 'Regular'}, inplace=True)
+        df['Item_Fat_Content'].replace({'LF': 'Low Fat',
+                                        'low fat': 'Low Fat',
+                                        'reg': 'Regular'}, inplace=True)
 
-    return df
+        return df
+    else:
+        df['Item_Weight'].replace({0: np.nan}, inplace=True)
+        df['Outlet_Size'].replace({"": np.nan}, inplace=True)
+        with open('models/imputation_values.txt', 'r') as f:
+            imp_values = f.read().strip().split("\n")
+            mean_item_weight = float(imp_values[0].split("=")[1])
+            median_item_visibility = float(imp_values[1].split("=")[1])
+
+            df['Item_Weight'].fillna(mean_item_weight, inplace=True)
+            df['Item_Visibility'].replace({0: median_item_visibility}, inplace=True)
+            df['Item_Fat_Content'].replace({'LF': 'Low Fat', 'low fat': 'Low Fat', 'reg': 'Regular'}, inplace=True)
+        return df
 
 
 def feature_encoding(df: pd.DataFrame, isPrediction: bool):
+    log.info("Feature Encoding the data")
     global lEncIT_mapping
     global lEncOT_mapping
 
@@ -142,44 +163,57 @@ def ord_enc(df, col, ord_var):
 
 
 def remove_irrelevant_columns(df: pd.DataFrame):
+    log.info("Removing irrelevant columns")
     df.drop(columns=['Item_Identifier', 'Outlet_Identifier'], axis=1, inplace=True)  # ,'Outlet_Identifier'
     if 'id' in df.columns:
         df.drop(columns=['id'], axis=1, inplace=True)
     return df
 
 
-def predict_missing_values_Outlet_size(df: pd.DataFrame):
-    logging.info('Predicting missing values for Outlet_Size')
-    df['Outlet_Size'].replace({'None': np.nan}, inplace=True)
-    out_train_pred_df = df[df['Outlet_Size'].isna()]
-    # out_test_pred_df = test_df[test_df['Outlet_Size'].isna()]
-    out_train_df = df[~df['Outlet_Size'].isna()]  # for training
-    # out_train_df.to_csv('outtrain.csv')
-    # print(out_train_df.isna().sum())
-    # print(out_train_df['Outlet_Size'].dtype)
-    out_train_df['Outlet_Size'].replace({'Small': 0, 'Medium': 1, 'High': 2}, inplace=True)
-    # out_train_df.drop(columns=['Item_Identifier','Outlet_Identifier'],inplace=True)
-    X = out_train_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales'])
-    y = out_train_df['Outlet_Size']
-    # print(y.value_counts())
-    trainX, testX, trainY, testY = train_test_split(X, y, random_state=22, test_size=0.2)
-    rf_model = RandomForestClassifier(random_state=2)
-    rf_model.fit(trainX, trainY)
+def predict_missing_values_Outlet_size(df: pd.DataFrame, isTrain: bool):
+    log.info('Predicting missing values for Outlet_Size')
+    if isTrain:
 
-    # pred = cat_model.predict(testX)
+        df['Outlet_Size'].replace({'None': np.nan}, inplace=True)
+        out_train_pred_df = df[df['Outlet_Size'].isna()]
+        # out_test_pred_df = test_df[test_df['Outlet_Size'].isna()]
+        out_train_df = df[~df['Outlet_Size'].isna()]  # for training
+        out_train_df['Outlet_Size'].replace({'Small': 0, 'Medium': 1, 'High': 2}, inplace=True)
+        # out_train_df.drop(columns=['Item_Identifier','Outlet_Identifier'],inplace=True)
+        X = out_train_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales'])
+        y = out_train_df['Outlet_Size']
+        # print(y.value_counts())
+        trainX, testX, trainY, testY = train_test_split(X, y, random_state=22, test_size=0.2)
+        rf_model = RandomForestClassifier(random_state=2)
+        rf_model.fit(trainX, trainY)
 
-    out_train_pred = rf_model.predict(out_train_pred_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales']))
-    # print(out_train_pred)
-    out_train_pred_df.loc[:, 'Outlet_Size'] = out_train_pred
-    # out_test_pred = rf_model.predict(out_test_pred_df.drop(columns=['Outlet_Size']))
-    # out_test_pred_df['Outlet_Size'] = out_test_pred
+        # pred = cat_model.predict(testX)
 
-    df.dropna(inplace=True)
-    # test_df.dropna(inplace=True)
+        out_train_pred = rf_model.predict(out_train_pred_df.drop(columns=['Outlet_Size', 'Item_Outlet_Sales']))
+        # print(out_train_pred)
+        out_train_pred_df.loc[:, 'Outlet_Size'] = out_train_pred
+        # out_test_pred = rf_model.predict(out_test_pred_df.drop(columns=['Outlet_Size']))
+        # out_test_pred_df['Outlet_Size'] = out_test_pred
 
-    df = pd.concat([df, out_train_pred_df])
-    # test_df = pd.concat([test_df, out_test_pred_df])
-    return df
+        df.dropna(inplace=True)
+        # test_df.dropna(inplace=True)
+
+        df = pd.concat([df, out_train_pred_df])
+        # test_df = pd.concat([test_df, out_test_pred_df])
+        dump(rf_model, 'models/outlet_size_model.pkl')
+        return df
+    else:
+        # print(type(df['Outlet_Size'][0]))
+        rf_model = load('models/outlet_size_model.pkl')
+        pred_out_size_df = df[df['Outlet_Size'].isna()]
+        df = df[~df['Outlet_Size'].isna()]
+        if len(pred_out_size_df > 0):
+            pred_values = rf_model.predict(pred_out_size_df.drop(columns=['Outlet_Size']))
+            pred_out_size_df.loc[:, 'Outlet_Size'] = pred_values
+            df = pd.concat([df, pred_out_size_df])
+            return df
+        else:
+            return df
 
 
 # Data Format (dictionary): {'ID':'Axsd34','Outlet_Size':'Medium',...}
@@ -188,13 +222,17 @@ def predict_missing_values_Outlet_size(df: pd.DataFrame):
 #     return df
 
 def train_model(train_df):
+    log.info("Training the model.")
     X = train_df.drop(columns=['Item_Outlet_Sales'], axis=1)
     y = train_df['Item_Outlet_Sales']
 
-    trainX, testX, trainY, testY = train_test_split(X, y, random_state=42, test_size=0.25)
+    trainX, testX, trainY, testY = train_test_split(X, y, random_state=42, test_size=0.20)
 
     clf = Pipeline(
-        [('cat_reg', CatBoostRegressor(random_state=2, iterations=3000, learning_rate=0.002, depth=6, silent=True))])
+        [('cat_reg', CatBoostRegressor(random_state=2, iterations=3000,
+                                       learning_rate=0.002,
+                                       depth=6, silent=True,
+                                       allow_writing_files=False))])
     clf.fit(trainX, trainY)
 
     # print('Trining R2 Score: {}'.format(clf.score(trainX, trainY)))
@@ -223,13 +261,14 @@ def predictionResult(testY, pred, model_name):
 
 def logToFile(path: str, data: dict):
     # For logging training scores to file
+    log.info("Logging training record to file.")
     with open(path, 'a') as logfile:
         currTimestamp = datetime.datetime.now()
         logfile.write('---------------------------------------------------*\n')
-        logfile.write('TimeStamp: {} \n'.format(currTimestamp))
-        logfile.write('Model Name: {} \n'.format(data['model_name']))
-        logfile.write('R2 Score: {} % \n'.format(data['r2_accuracy_score']))
-        logfile.write('Mean Abs Error: {} \n'.format(data['mae_score']))
-        logfile.write('Mean Sq Error: {} \n'.format(data['mse_score']))
-        logfile.write('Root Mean Sq Error: {} \n'.format(data['rmse_score']))
+        logfile.write('TimeStamp: {}\n'.format(currTimestamp))
+        logfile.write('Model Name: {}\n'.format(data['model_name']))
+        logfile.write('R2 Score: {}%\n'.format(data['r2_accuracy_score']))
+        logfile.write('Mean Abs Error: {}\n'.format(data['mae_score']))
+        logfile.write('Mean Sq Error: {}\n'.format(data['mse_score']))
+        logfile.write('Root Mean Sq Error: {}\n'.format(data['rmse_score']))
         logfile.write('*-----------------------------------------------------\n')

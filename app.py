@@ -144,7 +144,7 @@ def predict():
 
 # previous training records API endpoint
 
-@app.route("/user/train/records", methods=['GET'])
+@app.route("/user/train/history", methods=['GET'])
 def get_training_records():
     records = sales_service.get_train_log()
     records = [json.loads(x) for x in records]

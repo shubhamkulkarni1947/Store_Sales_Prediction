@@ -1,7 +1,7 @@
 import json
 
 
-def test_train_1(app, client):
+def test_train_1(client):
     data = [
         {
             "Item_Fat_Content": "Low Fat",
@@ -37,4 +37,4 @@ def test_train_1(app, client):
     res = client.post(url, data=json.dumps(data))
     assert res.status_code == 200
     response_data = json.loads(res.get_data(as_text=True))
-    assert response_data['status'] == True
+    assert response_data['status'] is True

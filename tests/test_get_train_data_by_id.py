@@ -1,7 +1,7 @@
 import json
 
 
-def test_get_train_data_by_id_1(app, client):
+def test_get_train_data_by_id_1(client):
     res = client.get('/user/train/1')
     assert res.status_code == 200
     expected = {"data": [{
@@ -26,7 +26,7 @@ def test_get_train_data_by_id_1(app, client):
 
 # Test case: for id which is not present in the DB
 
-def test_get_train_data_by_id_2(app, client):
+def test_get_train_data_by_id_2(client):
     res = client.get('/user/train/99999')
     assert res.status_code == 200
     expected = {

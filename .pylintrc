@@ -7,4 +7,6 @@ disable=
     W0703 ,
     C0103,
     W0612,
-    R0911
+    R0911,
+    E0401, # Unable to import 'app' (import-error)
+    W0621 # Redefining name 'app' from outer scope (line 7) (redefined-outer-name)

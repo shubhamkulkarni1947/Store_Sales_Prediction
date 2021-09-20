@@ -8522,5 +8522,3 @@ id,Item_Identifier,Item_Weight,Item_Fat_Content,Item_Visibility,Item_Type,Item_M
 8520,NCJ29,10.6,Low Fat,0.035186271,Health and Hygiene,85.1224,OUT035,2004,Small,Tier 2,Supermarket Type1,1193.1136
 8521,FDN46,7.21,Regular,0.145220646,Snack Foods,103.1332,OUT018,2009,Medium,Tier 3,Supermarket Type2,1845.5976
 8522,DRG01,14.8,Low Fat,0.04487828,Soft Drinks,75.467,OUT046,1997,Small,Tier 1,Supermarket Type1,765.67
-8523,FDW58,20.75,Low Fat,0.007565,Snack Foods,107.8622,OUT049,1999,Medium,Tier 1,Supermarket Type1,1713.405
-8524,FDB58,10.5,Regular,0.013496,Snack Foods,141.3154,OUT046,1997,Small,Tier 1,Supermarket Type1,2201.606

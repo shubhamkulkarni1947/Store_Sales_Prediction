@@ -1,0 +1,2 @@
+mean_item_wight=12.858428915321438
+median_item_visibility=0.053924587

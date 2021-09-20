@@ -71,9 +71,6 @@ Mean Sq Error: 1153337.489205689
 Root Mean Sq Error: 1073.9355144540518 
 *-----------------------------------------------------
 ---------------------------------------------------*
-TimeStamp: 2021-09-17 12:44:11.361134 
-Model Name: CatBoostRegressor 
----------------------------------------------------*
 TimeStamp: 2021-09-17 12:45:41.612710 
 Model Name: CatBoostRegressor 
 R2 Score: 61.4 
@@ -136,4 +133,44 @@ R2 Score: 61.4 %
 Mean Abs Error: 750.51 
 Mean Sq Error: 1153337.49 
 Root Mean Sq Error: 1073.94 
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 12:02:51.362913 
+Model Name: CatBoostRegressor 
+R2 Score: 61.4 % 
+Mean Abs Error: 750.51 
+Mean Sq Error: 1153337.49 
+Root Mean Sq Error: 1073.94 
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 13:54:20.024812
+Model Name: CatBoostRegressor
+R2 Score: 61.21%
+Mean Abs Error: 756.81
+Mean Sq Error: 1170585.06
+Root Mean Sq Error: 1081.94
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 14:07:32.872055
+Model Name: CatBoostRegressor
+R2 Score: 61.21%
+Mean Abs Error: 756.81
+Mean Sq Error: 1170585.06
+Root Mean Sq Error: 1081.94
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 14:20:18.540000
+Model Name: CatBoostRegressor
+R2 Score: 61.21%
+Mean Abs Error: 756.81
+Mean Sq Error: 1170585.06
+Root Mean Sq Error: 1081.94
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 14:22:52.304595
+Model Name: CatBoostRegressor
+R2 Score: 61.21%
+Mean Abs Error: 756.81
+Mean Sq Error: 1170585.06
+Root Mean Sq Error: 1081.94
 *-----------------------------------------------------

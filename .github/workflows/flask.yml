@@ -33,7 +33,7 @@ jobs:
     - name: Linter
       run: |
         pylint app.py
-#        pylint tests/
+        pylint tests/
     - name: Run Tests
       run: |
         python -m pytest

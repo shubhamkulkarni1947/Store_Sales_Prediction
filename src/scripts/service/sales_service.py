@@ -5,7 +5,8 @@ import numpy as np
 from joblib import load
 from flask import json
 import models as models
-from src.scripts.service.util_script import clean_data, feature_encoding, remove_irrelevant_columns, \
+from src.scripts.service.util_script import clean_data, feature_encoding,\
+    remove_irrelevant_columns, predict_missing_values_Outlet_size, \
     complete_flow_till_model_creation
 
 pd.options.mode.chained_assignment = None
@@ -29,9 +30,10 @@ def predict_sales(data: list, filename: str, isCsvFile: bool):
     orig_df = df.copy()
 
     # Transform the dataframe -> cleaning,encoding
-    test_df = clean_data(df)
-    test_df = feature_encoding(test_df, True)
+    test_df = clean_data(df, isTrain=False)
+    test_df = feature_encoding(test_df, isPrediction=True)
     test_df = remove_irrelevant_columns(test_df)
+    test_df = predict_missing_values_Outlet_size(test_df, isTrain=False)
 
     # predicting result after transformation of data
     # model_path = os.path.join(path, '/models/model.pkl')
@@ -39,6 +41,9 @@ def predict_sales(data: list, filename: str, isCsvFile: bool):
     prediction = model_pipe.predict(test_df)
 
     # format the prediction by adding it as a column in the current dataframe
+    test_df['Outlet_Size'].replace({0: 'Small', 1: 'Medium', 2: 'High'}, inplace=True)
+    orig_df.loc[:, 'Item_Weight'] = test_df['Item_Weight']
+    orig_df.loc[:, 'Outlet_Size'] = test_df['Outlet_Size']
     orig_df.loc[:, 'Item_Outlet_Sales'] = np.round(prediction, 3)
 
     # Converting back df to list of dict
@@ -52,18 +57,19 @@ def get_train_log() -> list:
     lst = []
     with open('src/other/logs/train_log.txt') as f:
         st = f.read()
-        st = st.split('*')
+        st = st.strip().split('*')
         for i in range(len(st)):
             if i % 2 != 0:
                 stt = st[i].split('\n')
                 dct = {}
                 for j in range(1, len(stt) - 1):
-                    split_text = stt[j].split(': ')
+                    split_text = stt[j].strip().split(': ')
                     key = split_text[0].strip()
                     val = split_text[1].strip()
                     dct[key] = val
                 lst.append(dct)
     lst = [json.dumps(x, cls=models.SalesModelEncoder) for x in lst]
+    print(lst)
     return lst
 
 

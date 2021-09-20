@@ -1,6 +1,7 @@
 [![Flask](https://github.com/mgarg123/Store_Sales_Prediction/actions/workflows/flask.yml/badge.svg)](https://github.com/mgarg123/Store_Sales_Prediction/actions/workflows/flask.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/mgarg123/Store_Sales_Prediction)
 ![Heroku](https://heroku-badge.herokuapp.com/?app=sales-pred-app&root=health)
+[![Updates](https://pyup.io/repos/github/mgarg123/Store_Sales_Prediction/shield.svg)](https://pyup.io/repos/github/mgarg123/Store_Sales_Prediction/)
 <br/>
 
 ### APP URL: <u><a href="https://sales-pred-app.herokuapp.com">Open App</a><u>

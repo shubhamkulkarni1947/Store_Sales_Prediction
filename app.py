@@ -28,21 +28,10 @@ def create_tables():
     create_table()
 
 
-# @app.route('/user/train/create', methods=['GET', 'POST'])
-# def add_training_data():
-#     if request.method == 'GET':
-#         return {"status":, "message": "please hit post request"}
-#     if request.method == 'POST':
-#         data = request.get_json(force=True, silent=False, cache=True)
-#         logging.info('post request came with data %s', data)
-#         # insert_a_sale_data(data)
-#         sales_service.upload_a_train_data_to_db(data)
-#         return {"status": True, 'message': "Successfully store the data into database", data: []}
-
-
-@app.route('/health')
+@app.route('/health', methods=['GET', 'POST'])
 def health_check():
     return "ok"
+
 
 @app.route('/user/train/all', methods=["GET"])
 def get_all_train_data():
@@ -149,6 +138,19 @@ def get_training_records():
     records = sales_service.get_train_log()
     records = [json.loads(x) for x in records]
     return {"status": True, 'message': "Success", "data": records}
+
+
+# Get all test data from csv
+
+@app.route("/user/test/all", methods=['GET'])
+def get_test_data():
+    data = sales_service.get_all_test_data()
+    return {"status": True, "message": "success", "data": data}
+
+@app.route("/user/test/<_id>", methods=['GET'])
+def get_test_data_by_id(_id):
+    data = sales_service.get_test_data_by_id(int(_id))
+    return {"status": True, "message": "success", "data": data}
 
 
 if __name__ == '__main__':

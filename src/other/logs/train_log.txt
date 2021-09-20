@@ -174,3 +174,43 @@ Mean Abs Error: 756.81
 Mean Sq Error: 1170585.06
 Root Mean Sq Error: 1081.94
 *-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 14:43:12.736421
+Model Name: CatBoostRegressor
+R2 Score: 61.21%
+Mean Abs Error: 756.81
+Mean Sq Error: 1170585.06
+Root Mean Sq Error: 1081.94
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 14:45:01.778747
+Model Name: CatBoostRegressor
+R2 Score: 63.76%
+Mean Abs Error: 738.36
+Mean Sq Error: 1143098.44
+Root Mean Sq Error: 1069.16
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 14:47:14.375382
+Model Name: CatBoostRegressor
+R2 Score: 61.4%
+Mean Abs Error: 750.51
+Mean Sq Error: 1153337.49
+Root Mean Sq Error: 1073.94
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 15:12:02.654117
+Model Name: CatBoostRegressor
+R2 Score: 61.86%
+Mean Abs Error: 729.56
+Mean Sq Error: 1056737.47
+Root Mean Sq Error: 1027.98
+*-----------------------------------------------------
+---------------------------------------------------*
+TimeStamp: 2021-09-20 15:38:13.974319
+Model Name: CatBoostRegressor
+R2 Score: 61.86%
+Mean Abs Error: 729.56
+Mean Sq Error: 1056737.47
+Root Mean Sq Error: 1027.98
+*-----------------------------------------------------

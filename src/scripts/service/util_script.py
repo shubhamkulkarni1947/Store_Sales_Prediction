@@ -52,13 +52,14 @@ def complete_flow_till_model_creation():
 def get_train_df():
     log.info("Getting ALl training data from DB")
     #    return pd.read_csv('../../../data/raw/Train.csv')
-    train_data = dao.get_train_data()
-    sales = [json.loads(x) for x in train_data]
-    return pd.DataFrame(sales)
+    # train_data = dao.get_train_data()
+    # sales = [json.loads(x) for x in train_data]
+    sales = pd.read_csv('data/raw/Train.csv')
+    return sales
 
 
 def get_test_df():
-    return pd.read_csv('../../../data/raw/Test.csv')
+    return pd.read_csv('data/raw/Test.csv')
 
 
 # ######################### clean data source ##############################
@@ -226,7 +227,7 @@ def train_model(train_df):
     X = train_df.drop(columns=['Item_Outlet_Sales'], axis=1)
     y = train_df['Item_Outlet_Sales']
 
-    trainX, testX, trainY, testY = train_test_split(X, y, random_state=42, test_size=0.20)
+    trainX, testX, trainY, testY = train_test_split(X, y, random_state=42, test_size=0.25)
 
     clf = Pipeline(
         [('cat_reg', CatBoostRegressor(random_state=2, iterations=3000,

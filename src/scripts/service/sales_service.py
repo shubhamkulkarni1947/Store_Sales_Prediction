@@ -7,7 +7,7 @@ from flask import json
 import models as models
 from src.scripts.service.util_script import clean_data, feature_encoding,\
     remove_irrelevant_columns, predict_missing_values_Outlet_size, \
-    complete_flow_till_model_creation
+    complete_flow_till_model_creation, get_test_df
 
 pd.options.mode.chained_assignment = None
 
@@ -131,6 +131,16 @@ def check_duplicate_and_increment_id(data_dict: dict, data_csv_file_name: str, i
 def load_train_csv_to_db(filepath):
     dao.load_training_csv_data(filepath)
 
+
+def get_all_test_data() -> list:
+    df = get_test_df()
+    test_data = df.to_dict('records')
+    return test_data
+
+def get_test_data_by_id(_id) -> dict:
+    df = get_test_df()
+    res_df = df.iloc[_id]
+    return res_df.to_dict()
 
 # validate the data
 def upload_a_train_data_to_db(data):

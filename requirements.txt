@@ -13,7 +13,7 @@ scipy
 seaborn
 statsmodels
 Werkzeug
-pylint
+pylint==2.17.3
 pytest
 cassandra-driver
 catboost

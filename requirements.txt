@@ -1,6 +1,6 @@
 gunicorn
 joblib
-Flask
+Flask==3.0.2
 Flask-RESTful
 jsonschema
 matplotlib

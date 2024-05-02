@@ -1,5 +1,5 @@
 gunicorn
-joblib
+joblib==1.4.2
 Flask
 Flask-RESTful
 jsonschema
